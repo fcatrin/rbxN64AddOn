@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="paulscode.android.mupen64plus.free"
+    package="retrobox.paulscode.android.mupen64plus.free"
     android:installLocation="auto"
     android:versionCode="36"
     android:versionName="2.4.4" >
@@ -28,6 +28,7 @@
             android:name="paulscode.android.mupen64plusae.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/appTheme.Black" >
+            <!-- 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,6 +50,12 @@
                 <data android:pathPattern=".*\\.V64" />
                 <data android:pathPattern=".*\\.z64" />
                 <data android:pathPattern=".*\\.Z64" />
+            </intent-filter>
+             -->
+            <intent-filter>
+                <action android:name="retrobox.n64" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain"/>
             </intent-filter>
         </activity>
         <activity

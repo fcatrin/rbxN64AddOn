@@ -27,7 +27,7 @@ import java.util.List;
 
 import com.bda.controller.Controller;
 
-import paulscode.android.mupen64plus.free.R;
+import retrobox.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.input.map.InputMap;
 import paulscode.android.mupen64plusae.input.provider.AbstractProvider;
 import paulscode.android.mupen64plusae.input.provider.AbstractProvider.OnInputListener;

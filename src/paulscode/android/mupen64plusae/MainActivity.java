@@ -23,7 +23,7 @@ package paulscode.android.mupen64plusae;
 import java.io.File;
 import java.util.List;
 
-import paulscode.android.mupen64plus.free.R;
+import retrobox.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import paulscode.android.mupen64plusae.util.AssetExtractor;
@@ -88,11 +88,19 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
         super.onCreate( savedInstanceState );
         
         // Save the path of the ROM, if it was passed to the activity
+        /*
         Uri dataUri = this.getIntent().getData();
         if( dataUri != null )
         {
             Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
             editor.putString( "pathSelectedGame", dataUri.getPath() ).commit();
+        }
+        */
+        
+        String romPath = getIntent().getStringExtra("romPath");
+        if (romPath!=null) {
+            Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putString( "pathSelectedGame", romPath).commit();
         }
         
         // Enforce any locale overrides

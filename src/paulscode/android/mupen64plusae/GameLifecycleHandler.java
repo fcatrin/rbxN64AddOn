@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import com.bda.controller.Controller;
 
-import paulscode.android.mupen64plus.free.R;
+import retrobox.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.input.AbstractController;
 import paulscode.android.mupen64plusae.input.PeripheralController;
 import paulscode.android.mupen64plusae.input.TouchController;
