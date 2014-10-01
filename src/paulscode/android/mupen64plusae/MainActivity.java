@@ -77,6 +77,8 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
     /** The running count of assets extracted. */
     private int mAssetsExtracted;
     
+    public static boolean fromRetroBox = false;
+    
     /*
      * (non-Javadoc)
      * 
@@ -99,8 +101,16 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
         
         String romPath = getIntent().getStringExtra("romPath");
         if (romPath!=null) {
+        	MainActivity.fromRetroBox = true;
             Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            editor.putString( "pathSelectedGame", romPath).commit();
+            editor.putString( "pathSelectedGame", romPath);
+            
+            // default plugins
+            editor.putString( "pluginVideo", "libgles2n64.so");
+            editor.putString( "pluginAudio", "libaudio-sdl.so");
+            editor.putString( "pluginInput", "libinput-android.so");
+            editor.putString( "pluginRsp", "librsp-hle.so");
+            editor.commit();
         }
         
         String videoPlugin = getIntent().getStringExtra("videoPlugin");
@@ -180,7 +190,7 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
                 updateText( R.string.assetExtractor_finished );
                 
                 // Launch the MenuActivity
-                startActivity( new Intent( MainActivity.this, MenuActivity.class ) );
+            	startActivity( new Intent( MainActivity.this, MenuActivity.class ) );
                 
                 // We never want to come back to this activity, so finish it
                 finish();

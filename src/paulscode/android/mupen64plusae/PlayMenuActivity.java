@@ -124,6 +124,11 @@ public class PlayMenuActivity extends PreferenceActivity implements OnPreference
             // Hide the cheats category
             PrefUtil.removePreference( this, SCREEN_PLAY, CATEGORY_CHEATS );
         }
+        
+        if (MainActivity.fromRetroBox) {
+        	launchGame( true );
+        	finish();
+        }
     }
     
     @Override

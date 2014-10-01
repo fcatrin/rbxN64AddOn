@@ -128,12 +128,16 @@ public class MenuActivity extends PreferenceActivity implements OnPreferenceClic
         if( lastVer != currVer )
         {
             // First run after install/update, greet user with changelog, then help dialog
-            actionHelp();            
-            ChangeLog log = new ChangeLog( getAssets() );
-            if( log.show( this, lastVer + 1, currVer ) )
-            {
-                mAppData.putLastAppVersionCode( currVer );
-            }
+        	if (MainActivity.fromRetroBox) {
+        		mAppData.putLastAppVersionCode( currVer );
+        	} else {
+	            actionHelp();            
+	            ChangeLog log = new ChangeLog( getAssets() );
+	            if( log.show( this, lastVer + 1, currVer ) )
+	            {
+	                mAppData.putLastAppVersionCode( currVer );
+	            }
+        	}
         }
         
         // Disable the Xperia PLAY plugin as necessary
@@ -239,7 +243,15 @@ public class MenuActivity extends PreferenceActivity implements OnPreferenceClic
             CharSequence message = getText( R.string.invalidInstall_message );
             new Builder( this ).setTitle( title ).setMessage( message ).create().show();
         }
+        
+        if (MainActivity.fromRetroBox) {
+        	Intent intent = new Intent(this, PlayMenuActivity.class);
+        	startActivity(intent);
+        	finish();
+        }
     }
+    
+
     
     @Override
     protected void onPause()
