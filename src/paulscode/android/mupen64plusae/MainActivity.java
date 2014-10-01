@@ -103,6 +103,14 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             editor.putString( "pathSelectedGame", romPath).commit();
         }
         
+        String videoPlugin = getIntent().getStringExtra("videoPlugin");
+        if (videoPlugin!=null) {
+        	// gles2n64, gles2rice o gles2glide64
+        	videoPlugin = "lib" + videoPlugin + ".so";
+            Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putString( "pluginVideo", videoPlugin).commit();
+        	
+        }
         // Enforce any locale overrides
         new UserPrefs( this ).enforceLocale( this );
         
