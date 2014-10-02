@@ -22,6 +22,9 @@ package paulscode.android.mupen64plusae;
 
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.vinput.AnalogGamepad;
+import retrobox.vinput.AnalogGamepad.Axis;
+import retrobox.vinput.AnalogGamepadListener;
 import retrobox.vinput.GenericGamepad;
 import retrobox.vinput.GenericGamepad.Analog;
 import retrobox.vinput.Mapper;
@@ -34,7 +37,6 @@ import retrobox.vinput.overlay.Overlay;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -50,11 +52,13 @@ public class GameActivity extends Activity
     
     // Input controls for RetroBox
     public static final Overlay overlay = new Overlay();
-	private static Mapper mapper;
+	public static Mapper mapper;
 	private VirtualInputDispatcher vinputDispatcher;
     private GamepadView gamepadView;
     private GamepadController gamepadController;
     private View mSurfaceView;
+    
+    AnalogGamepad analogGamepad;
     
     public GameActivity()
     {
@@ -95,6 +99,26 @@ public class GameActivity extends Activity
         	mSurfaceView = findViewById(R.id.gameSurface);
             ViewGroup root = (ViewGroup)findViewById(R.id.root);
         	setupGamepadOverlay(root);
+        	analogGamepad = new AnalogGamepad(0, 0, new AnalogGamepadListener() {
+    			
+    			@Override
+    			public void onMouseMoveRelative(float mousex, float mousey) {}
+    			
+    			@Override
+    			public void onMouseMove(int mousex, int mousey) {}
+    			
+    			@Override
+    			public void onAxisChange(float axisx, float axisy) {
+    				vinputDispatcher.sendAnalog(Analog.LEFT, axisx, -axisy);
+    			}
+
+				@Override
+				public void onDigitalX(Axis axis, boolean on) {}
+
+				@Override
+				public void onDigitalY(Axis axis, boolean on) {}
+
+    		});
         }
     }
     
@@ -118,6 +142,12 @@ public class GameActivity extends Activity
         super.onDestroy();
         mLifecycleHandler.onDestroy();
     }
+    
+    @Override
+	public boolean onGenericMotionEvent(MotionEvent event) {
+		if (analogGamepad != null && analogGamepad.onGenericMotionEvent(event)) return true;
+		return super.onGenericMotionEvent(event);
+	}
     
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -163,8 +193,7 @@ public class GameActivity extends Activity
 		return !Mapper.hasGamepads();
 	}
 
-	
-    class VirtualInputDispatcher implements VirtualEventDispatcher {
+	class VirtualInputDispatcher implements VirtualEventDispatcher {
         /** N64 button: dpad-right. */
         public static final int DPD_R = 0;
         
@@ -218,14 +247,6 @@ public class GameActivity extends Activity
     			BTN_L, BTN_R, BTN_Z, BTN_Z,
     			BTN_L, BTN_R, START, START
     	};
-    	
-    	public int originCodes[] = {
-    			KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
-    			KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_B, KeyEvent.KEYCODE_BUTTON_X, KeyEvent.KEYCODE_BUTTON_Y,
-    			KeyEvent.KEYCODE_BUTTON_L1, KeyEvent.KEYCODE_BUTTON_R1, KeyEvent.KEYCODE_BUTTON_L2, KeyEvent.KEYCODE_BUTTON_R2,
-    			KeyEvent.KEYCODE_BUTTON_THUMBL, KeyEvent.KEYCODE_BUTTON_THUMBR, KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_START
-    		};
-
     	
     	public boolean[] buttons = new boolean[NUM_N64_BUTTONS];
     	

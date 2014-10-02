@@ -262,27 +262,31 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
     public boolean onKey( View view, int keyCode, KeyEvent event )
     {
         boolean keyDown = event.getAction() == KeyEvent.ACTION_DOWN;
+        if (MainActivity.fromRetroBox && GameActivity.mapper.handleKeyEvent(event, keyCode, keyDown)) return true;
         
         // For devices with an action bar, absorb all back key presses
         // and toggle the action bar
-        if( keyCode == KeyEvent.KEYCODE_BACK && mUserPrefs.isActionBarAvailable )
-        {
-            if( keyDown )
-                toggleActionBar( view.getRootView() );
-            return true;
-        }
+        if (!MainActivity.fromRetroBox) {
+	        if( keyCode == KeyEvent.KEYCODE_BACK && mUserPrefs.isActionBarAvailable )
+	        {
+	            if( keyDown )
+	                toggleActionBar( view.getRootView() );
+	            return true;
+	        }
         
-        // Let the PeripheralControllers and Android handle everything else
-        else
-        {
-            // If PeripheralControllers exist and handle the event,
-            // they return true. Else they return false, signaling
-            // Android to handle the event (menu button, vol keys).
-            if( mKeyProvider != null )
-                return mKeyProvider.onKey( view, keyCode, event );
-            
-            return false;
+	        // Let the PeripheralControllers and Android handle everything else
+	        else
+	        {
+	            // If PeripheralControllers exist and handle the event,
+	            // they return true. Else they return false, signaling
+	            // Android to handle the event (menu button, vol keys).
+	            if( mKeyProvider != null )
+	                return mKeyProvider.onKey( view, keyCode, event );
+	            
+	            return false;
+	        }
         }
+        return false;
     }
     
     @SuppressLint( "InlinedApi" )
@@ -340,6 +344,8 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
                 inputSource.setOnTouchListener( demux );
             }
         }
+        
+        if (MainActivity.fromRetroBox) return;
         
         // Create the input providers shared among all peripheral controllers
         mKeyProvider = new KeyProvider( inputSource, ImeFormula.DEFAULT,
