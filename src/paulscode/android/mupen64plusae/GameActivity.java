@@ -20,20 +20,25 @@
  */
 package paulscode.android.mupen64plusae;
 
+import java.io.File;
+
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import retrobox.paulscode.android.mupen64plus.free.R;
 import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
 import retrobox.vinput.GenericGamepad;
+import retrobox.vinput.QuitHandler;
 import retrobox.vinput.GenericGamepad.Analog;
 import retrobox.vinput.Mapper;
 import retrobox.vinput.Mapper.ShortCut;
+import retrobox.vinput.QuitHandler.QuitHandlerCallback;
 import retrobox.vinput.VirtualEvent.MouseButton;
 import retrobox.vinput.VirtualEventDispatcher;
 import retrobox.vinput.overlay.GamepadController;
 import retrobox.vinput.overlay.GamepadView;
 import retrobox.vinput.overlay.Overlay;
+import retrobox.vinput.overlay.OverlayExtra;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.Toast;
 
 public class GameActivity extends Activity
 {
@@ -58,6 +64,8 @@ public class GameActivity extends Activity
     private GamepadController gamepadController;
     private View mSurfaceView;
     
+    private File stateFile = null;
+    
     AnalogGamepad analogGamepad;
     
     public GameActivity()
@@ -65,31 +73,77 @@ public class GameActivity extends Activity
         mLifecycleHandler = new GameLifecycleHandler( this );
     }
     
+    
+    static final private int CANCEL_ID = Menu.FIRST +1;
+    static final private int LOAD_ID = Menu.FIRST +2;
+    static final private int SAVE_ID = Menu.FIRST +3;
+    static final private int QUIT_ID = Menu.FIRST +4;
+    
     @Override
     public boolean onCreateOptionsMenu( Menu menu )
     {
-        mMenuHandler.onCreateOptionsMenu( menu );
+    	if (MainActivity.fromRetroBox) {
+            menu.add(0, CANCEL_ID, 0, "Cancel");
+            menu.add(0, LOAD_ID, 0, "Load State");
+            menu.add(0, SAVE_ID, 0, "Save State");
+            menu.add(0, QUIT_ID, 0, "Quit");
+    	} else {
+    		mMenuHandler.onCreateOptionsMenu( menu );
+    	}
         return super.onCreateOptionsMenu( menu );
     }
     
     @Override
     public boolean onOptionsItemSelected( MenuItem item )
     {
-        mMenuHandler.onOptionsItemSelected( item );
+    	if (!MainActivity.fromRetroBox) {
+    		mMenuHandler.onOptionsItemSelected( item );
+    	}
         return super.onOptionsItemSelected( item );
     }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    	if (MainActivity.fromRetroBox) {
+	    	if (item != null) {
+		        switch (item.getItemId()) {
+		        case LOAD_ID : uiLoadState(); return true;
+		        case SAVE_ID : uiSaveState(); return true;
+		        case QUIT_ID : uiQuit(); return true;
+		        }
+	    	}
+    	}
+        return super.onMenuItemSelected(featureId, item);
+    }
+    
+    @Override
+	public boolean onMenuOpened(int featureId, Menu menu) {
+		onPause();
+		return super.onMenuOpened(featureId, menu);
+	}
+
+	@Override
+	public void onOptionsMenuClosed(Menu menu) {
+		onResume();
+		super.onOptionsMenuClosed(menu);
+	}
     
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
         UserPrefs userPrefs = new UserPrefs( this );
-        mMenuHandler = new GameMenuHandler( this, userPrefs.manualSaveDir, userPrefs.selectedGameAutoSavefile );
+        if (MainActivity.fromRetroBox) {
+        	mMenuHandler = new GameMenuHandler( this, userPrefs.manualSaveDir, userPrefs.selectedGameAutoSavefile );
+        }
 
         mLifecycleHandler.onCreateBegin( savedInstanceState );
         super.onCreate( savedInstanceState );
         mLifecycleHandler.onCreateEnd( savedInstanceState );
         
         if (MainActivity.fromRetroBox) {
+        	
+        	stateFile = new File(MainActivity.publicIntent.getStringExtra("romPath") + ".state");
+        	
         	gamepadController = new GamepadController();
         	vinputDispatcher = new VirtualInputDispatcher();
             mapper = new Mapper(MainActivity.publicIntent, vinputDispatcher);
@@ -193,6 +247,39 @@ public class GameActivity extends Activity
 		return !Mapper.hasGamepads();
 	}
 
+    @Override
+	public void onBackPressed() {
+		uiQuitConfirm();
+	}
+
+    private void toastMessage(final String message) {
+    	Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+    
+    private void uiLoadState() {
+    	CoreInterfaceNative.emuLoadFile( stateFile.getAbsolutePath() );
+
+    	toastMessage("State was restored");
+    }
+
+    private void uiSaveState() {
+    	CoreInterfaceNative.emuSaveFile( stateFile.getAbsolutePath() );
+    	toastMessage("State was saved");
+    }
+
+	private void uiQuit() {
+		finish();
+	}
+	
+    protected void uiQuitConfirm() {
+    	QuitHandler.askForQuit(this, new QuitHandlerCallback() {
+			@Override
+			public void onQuit() {
+				uiQuit();
+			}
+		});
+    }
+	
 	class VirtualInputDispatcher implements VirtualEventDispatcher {
         /** N64 button: dpad-right. */
         public static final int DPD_R = 0;
@@ -288,7 +375,6 @@ public class GameActivity extends Activity
 
 		@Override
 		public boolean handleShortcut(ShortCut shortcut, boolean down) {
-			/*
 			switch(shortcut) {
 			case EXIT: if (!down) uiQuitConfirm(); return true;
 			case LOAD_STATE: if (!down) uiLoadState(); return true;
@@ -297,8 +383,6 @@ public class GameActivity extends Activity
 			default:
 				return false;
 			}
-			*/
-			return false;
 		}
     }
 }

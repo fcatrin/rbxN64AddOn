@@ -242,7 +242,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
     
     public void onPause()
     {
-        CoreInterface.pauseEmulator( true );
+        CoreInterface.pauseEmulator( !MainActivity.fromRetroBox );
         mMogaController.onPause();
     }
     
