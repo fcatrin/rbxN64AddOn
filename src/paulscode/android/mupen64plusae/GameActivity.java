@@ -146,6 +146,10 @@ public class GameActivity extends Activity
         	
         	gamepadController = new GamepadController();
         	vinputDispatcher = new VirtualInputDispatcher();
+        	
+        	boolean analogMode = MainActivity.publicIntent.getBooleanExtra("GAMEPAD_ANALOG", true);
+        	vinputDispatcher.setAnalogMode(analogMode);
+        	
             mapper = new Mapper(MainActivity.publicIntent, vinputDispatcher);
             Mapper.initGestureDetector(this);
             gamepadView = new GamepadView(this, overlay);
@@ -281,6 +285,9 @@ public class GameActivity extends Activity
     }
 	
 	class VirtualInputDispatcher implements VirtualEventDispatcher {
+		
+		private boolean analogMode = true;
+		
         /** N64 button: dpad-right. */
         public static final int DPD_R = 0;
         
@@ -322,18 +329,32 @@ public class GameActivity extends Activity
         
         /** N64 button: shoulder-l. */
         public static final int BTN_L = 13;
+        
+        public static final int MODE = 14;  // toggle analog/digital
 
-    	
-    	
     	public static final int NUM_N64_BUTTONS = 16;
-
     	
-    	int buttonMap[] = {
+    	int buttonMapOverlay[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			BTN_A, BTN_B, CPD_U, CPD_D,
     			BTN_L, BTN_R, BTN_Z, BTN_Z,
     			BTN_L, BTN_R, START, START
     	};
+
+    	int buttonMapRealAnalog[] = {
+    			DPD_U, DPD_D, DPD_L, DPD_R,
+    			CPD_D, BTN_A, CPD_U, BTN_B,
+    			BTN_Z, BTN_R, CPD_L, CPD_R,
+    			BTN_L, BTN_R, MODE, START
+    	};
+
+    	int buttonMapRealDigital[] = {
+    			DPD_U, DPD_D, DPD_L, DPD_R,
+    			CPD_D, BTN_A, CPD_U, BTN_B,
+    			BTN_L, BTN_R, CPD_L, CPD_R,
+    			BTN_Z, BTN_R, MODE, START
+    	};
+
     	
     	public boolean[] buttons = new boolean[NUM_N64_BUTTONS];
     	
@@ -342,6 +363,9 @@ public class GameActivity extends Activity
     	int analogX = 0;
     	int analogY = 0;
 
+    	public void setAnalogMode(boolean analogMode) {
+    		this.analogMode = analogMode;
+    	}
     	
     	@Override
     	public void sendAnalog(GenericGamepad.Analog index, double x, double y) {
@@ -363,8 +387,17 @@ public class GameActivity extends Activity
 		@Override
 		public void sendKey(int keyCode, boolean down) {
 			int index = Mapper.genericJoysticks[0].getOriginIndex(keyCode);
+			if (index == MODE) {
+				if (!down) {
+					analogMode = !analogMode;
+					toastMessage("Using " + (analogMode?"ANALOG":"DIGITAL" + " mode"));
+				}
+				return;
+			}
 			if (index>=0) {
-				int translatedIndex = buttonMap[index];
+				int translatedIndex = Mapper.genericJoysticks[0].getDeviceDescriptor()==null?
+						buttonMapOverlay[index]:
+						(analogMode?buttonMapRealAnalog[index]:buttonMapRealDigital[index]);
 				buttons[translatedIndex] = down;
 				notifyChange();
 			}
