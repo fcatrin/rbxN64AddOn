@@ -22,9 +22,6 @@ package paulscode.android.mupen64plusae;
 
 import java.util.ArrayList;
 
-import com.bda.controller.Controller;
-
-import retrobox.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.input.AbstractController;
 import paulscode.android.mupen64plusae.input.PeripheralController;
 import paulscode.android.mupen64plusae.input.TouchController;
@@ -39,6 +36,7 @@ import paulscode.android.mupen64plusae.input.provider.NativeInputSource;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import paulscode.android.mupen64plusae.util.Demultiplexer;
+import retrobox.paulscode.android.mupen64plus.free.R;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -57,6 +55,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.FrameLayout;
+
+import com.bda.controller.Controller;
 
 //@formatter:off
 /**
@@ -170,7 +170,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         // Lay out content and get the views
         mActivity.setContentView( R.layout.game_activity );
         mSurface = (GameSurface) mActivity.findViewById( R.id.gameSurface );
-        mOverlay = (GameOverlay) mActivity.findViewById( R.id.gameOverlay );
+    	mOverlay = (GameOverlay) mActivity.findViewById( R.id.gameOverlay );
         
         // Refresh the objects and data files interfacing to the emulator core
         CoreInterface.refresh( mActivity, mSurface );
@@ -201,7 +201,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         }
         
         // Initialize the screen elements
-        if( mUserPrefs.isTouchscreenEnabled || mUserPrefs.isFpsEnabled )
+        if(( mUserPrefs.isTouchscreenEnabled || mUserPrefs.isFpsEnabled ) && !MainActivity.fromRetroBox)
         {
             // The touch map and overlay are needed to display frame rate and/or controls
             mTouchscreenMap = new VisibleTouchMap( mActivity.getResources(),
@@ -318,7 +318,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         }
         
         // Create the touchscreen controls
-        if( mUserPrefs.isTouchscreenEnabled )
+        if( mUserPrefs.isTouchscreenEnabled && !MainActivity.fromRetroBox)
         {
             // Create the touchscreen controller
             TouchController touchscreenController = new TouchController( mTouchscreenMap,
@@ -399,4 +399,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
             actionBar.show();
         }
     }
+    
+
+
 }

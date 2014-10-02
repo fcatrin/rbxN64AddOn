@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.List;
 
 import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.vinput.Mapper;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import paulscode.android.mupen64plusae.util.AssetExtractor;
@@ -78,6 +79,7 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
     private int mAssetsExtracted;
     
     public static boolean fromRetroBox = false;
+    public static Intent publicIntent; // quick & dirty
     
     /*
      * (non-Javadoc)
@@ -111,6 +113,14 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             editor.putString( "pluginInput", "libinput-android.so");
             editor.putString( "pluginRsp", "librsp-hle.so");
             editor.commit();
+            
+            publicIntent = getIntent();
+            
+            for(int i=0; i<2; i++) {
+            	String prefix = "j" + (i+1);
+            	String deviceDescriptor = getIntent().getStringExtra(prefix + "DESCRIPTOR");
+            	Mapper.registerGamepad(i, deviceDescriptor);
+            }
         }
         
         String videoPlugin = getIntent().getStringExtra("videoPlugin");
