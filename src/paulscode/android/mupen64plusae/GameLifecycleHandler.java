@@ -52,7 +52,10 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager.LayoutParams;
 import android.widget.FrameLayout;
 
@@ -159,6 +162,19 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         mUserPrefs = new UserPrefs( mActivity );
     }
     
+    public void updateScreenSize(int width, int height) {
+    	mUserPrefs.updateScreenSize(width, height);
+    	
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mSurface.getLayoutParams();
+        params.width = mUserPrefs.videoSurfaceWidth;
+        params.height = mUserPrefs.videoSurfaceHeight;
+        params.gravity = mUserPrefs.videoPosition | Gravity.CENTER_HORIZONTAL;
+        
+        Log.d("OVERLAY", params.width + "x" + params.height);
+        
+        mSurface.setLayoutParams( params );
+    }
+    
     @SuppressLint( "InlinedApi" )
     @TargetApi( 11 )
     public void onCreateEnd( Bundle savedInstanceState )
@@ -169,6 +185,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         
         // Lay out content and get the views
         mActivity.setContentView( R.layout.game_activity );
+        
         mSurface = (GameSurface) mActivity.findViewById( R.id.gameSurface );
     	mOverlay = (GameOverlay) mActivity.findViewById( R.id.gameOverlay );
         
@@ -184,6 +201,9 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         params.width = mUserPrefs.videoSurfaceWidth;
         params.height = mUserPrefs.videoSurfaceHeight;
         params.gravity = mUserPrefs.videoPosition | Gravity.CENTER_HORIZONTAL;
+        
+        Log.d("OVERLAY", params.width + "x" + params.height);
+        
         mSurface.setLayoutParams( params );
         
         // Configure the action bar introduced in higher Android versions

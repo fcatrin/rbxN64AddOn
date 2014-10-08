@@ -254,16 +254,16 @@ public class UserPrefs
     public final int videoPosition;
     
     /** The width of the OpenGL rendering context, in pixels. */
-    public final int videoRenderWidth;
+    public int videoRenderWidth;
     
     /** The height of the OpenGL rendering context, in pixels. */
-    public final int videoRenderHeight;
+    public int videoRenderHeight;
     
     /** The width of the viewing surface, in pixels. */
-    public final int videoSurfaceWidth;
+    public int videoSurfaceWidth;
     
     /** The height of the viewing surface, in pixels. */
-    public final int videoSurfaceHeight;
+    public int videoSurfaceHeight;
     
     /** The action bar transparency value. */
     public final int videoActionBarTransparency;
@@ -643,91 +643,95 @@ public class UserPrefs
             Display display = windowManager.getDefaultDisplay();
             int stretchWidth = display == null ? 0 : display.getWidth();
             int stretchHeight = display == null ? 0 : display.getHeight();
-            
-            float aspect = 0.75f; // TODO: Handle PAL
-            boolean isLetterboxed = ( (float) stretchHeight / (float) stretchWidth ) > aspect;
-            int zoomWidth = isLetterboxed ? stretchWidth : Math.round( (float) stretchHeight / aspect );
-            int zoomHeight = isLetterboxed ? Math.round( (float) stretchWidth * aspect ) : stretchHeight;
-            int cropWidth = isLetterboxed ? Math.round( (float) stretchHeight / aspect ) : stretchWidth;
-            int cropHeight = isLetterboxed ? stretchHeight : Math.round( (float) stretchWidth * aspect );
-            
-            int hResolution = getSafeInt( mPreferences, "videoResolution", 0 );
-            String scaling = mPreferences.getString( "videoScaling", "zoom" );
-            if( hResolution == 0 )
+            updateScreenSize(stretchWidth, stretchHeight);
+        }
+    }
+    
+    public void updateScreenSize(int width, int height) {
+        float aspect = 0.75f; // TODO: Handle PAL
+        boolean isLetterboxed = ( (float) height / (float) width ) > aspect;
+        int zoomWidth = isLetterboxed ? width : Math.round( (float) height / aspect );
+        int zoomHeight = isLetterboxed ? Math.round( (float) width * aspect ) : height;
+        int cropWidth = isLetterboxed ? Math.round( (float) height / aspect ) : width;
+        int cropHeight = isLetterboxed ? height : Math.round( (float) width * aspect );
+        
+        int hResolution = getSafeInt( mPreferences, "videoResolution", 0 );
+        String scaling = mPreferences.getString( "videoScaling", "zoom" );
+        if( hResolution == 0 )
+        {
+            // Native resolution
+            if( scaling.equals( "stretch" ) )
             {
-                // Native resolution
-                if( scaling.equals( "stretch" ) )
-                {
-                    videoRenderWidth = videoSurfaceWidth = stretchWidth;
-                    videoRenderHeight = videoSurfaceHeight = stretchHeight;
-                }
-                else if( scaling.equals( "crop" ) )
-                {
-                    videoRenderWidth = videoSurfaceWidth = cropWidth;
-                    videoRenderHeight = videoSurfaceHeight = cropHeight;
-                }
-                else // scaling.equals( "zoom") || scaling.equals( "none" )
-                {
-                    videoRenderWidth = videoSurfaceWidth = zoomWidth;
-                    videoRenderHeight = videoSurfaceHeight = zoomHeight;
-                }
+                videoRenderWidth = videoSurfaceWidth = width;
+                videoRenderHeight = videoSurfaceHeight = height;
             }
-            else
+            else if( scaling.equals( "crop" ) )
             {
-                // Non-native resolution
-                switch( hResolution )
-                {
-                    case 720:
-                        videoRenderWidth = 960;
-                        videoRenderHeight = 720;
-                        break;
-                    case 600:
-                        videoRenderWidth = 800;
-                        videoRenderHeight = 600;
-                        break;
-                    case 480:
-                        videoRenderWidth = 640;
-                        videoRenderHeight = 480;
-                        break;
-                    case 360:
-                        videoRenderWidth = 480;
-                        videoRenderHeight = 360;
-                        break;
-                    case 240:
-                        videoRenderWidth = 320;
-                        videoRenderHeight = 240;
-                        break;
-                    case 120:
-                        videoRenderWidth = 160;
-                        videoRenderHeight = 120;
-                        break;
-                    default:
-                        videoRenderWidth = Math.round( (float) hResolution / aspect );
-                        videoRenderHeight = hResolution;
-                        break;
-                }
-                if( scaling.equals( "zoom" ) )
-                {
-                    videoSurfaceWidth = zoomWidth;
-                    videoSurfaceHeight = zoomHeight;
-                }
-                else if( scaling.equals( "crop" ) )
-                {
-                    videoSurfaceWidth = cropWidth;
-                    videoSurfaceHeight = cropHeight;
-                }
-                else if( scaling.equals( "stretch" ) )
-                {
-                    videoSurfaceWidth = stretchWidth;
-                    videoSurfaceHeight = stretchHeight;
-                }
-                else // scaling.equals( "none" )
-                {
-                    videoSurfaceWidth = videoRenderWidth;
-                    videoSurfaceHeight = videoRenderHeight;
-                }
+                videoRenderWidth = videoSurfaceWidth = cropWidth;
+                videoRenderHeight = videoSurfaceHeight = cropHeight;
+            }
+            else // scaling.equals( "zoom") || scaling.equals( "none" )
+            {
+                videoRenderWidth = videoSurfaceWidth = zoomWidth;
+                videoRenderHeight = videoSurfaceHeight = zoomHeight;
             }
         }
+        else
+        {
+            // Non-native resolution
+            switch( hResolution )
+            {
+                case 720:
+                    videoRenderWidth = 960;
+                    videoRenderHeight = 720;
+                    break;
+                case 600:
+                    videoRenderWidth = 800;
+                    videoRenderHeight = 600;
+                    break;
+                case 480:
+                    videoRenderWidth = 640;
+                    videoRenderHeight = 480;
+                    break;
+                case 360:
+                    videoRenderWidth = 480;
+                    videoRenderHeight = 360;
+                    break;
+                case 240:
+                    videoRenderWidth = 320;
+                    videoRenderHeight = 240;
+                    break;
+                case 120:
+                    videoRenderWidth = 160;
+                    videoRenderHeight = 120;
+                    break;
+                default:
+                    videoRenderWidth = Math.round( (float) hResolution / aspect );
+                    videoRenderHeight = hResolution;
+                    break;
+            }
+            if( scaling.equals( "zoom" ) )
+            {
+                videoSurfaceWidth = zoomWidth;
+                videoSurfaceHeight = zoomHeight;
+            }
+            else if( scaling.equals( "crop" ) )
+            {
+                videoSurfaceWidth = cropWidth;
+                videoSurfaceHeight = cropHeight;
+            }
+            else if( scaling.equals( "stretch" ) )
+            {
+                videoSurfaceWidth = width;
+                videoSurfaceHeight = height;
+            }
+            else // scaling.equals( "none" )
+            {
+                videoSurfaceWidth = videoRenderWidth;
+                videoSurfaceHeight = videoRenderHeight;
+            }
+        }
+    	
     }
     
     public void enforceLocale( Activity activity )

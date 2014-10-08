@@ -230,8 +230,9 @@ public class GameActivity extends Activity
 			public void onGlobalLayout() {
 				int w = root.getWidth();
 				int h = root.getHeight();
+				Log.d("OVERLAY", "set dimensions " + w + "x" + h);
+				mLifecycleHandler.updateScreenSize(w, h);
 				if (needsOverlay()) {
-					Log.d("OVERLAY", "set dimensions " + w + "x" + h);
 					String overlayConfig = MainActivity.publicIntent.getStringExtra("OVERLAY");
 					float alpha = MainActivity.publicIntent.getFloatExtra("OVERLAY_ALPHA", 0.8f);
 					if (overlayConfig!=null) overlay.init(overlayConfig, w, h, alpha);
