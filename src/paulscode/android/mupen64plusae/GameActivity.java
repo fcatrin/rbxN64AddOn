@@ -223,6 +223,9 @@ public class GameActivity extends Activity
 		return super.dispatchTouchEvent(ev);
 	}
 	
+	private int last_w = 0;
+	private int last_h = 0;
+	
 	private void setupGamepadOverlay(final ViewGroup root) {
 		ViewTreeObserver observer = root.getViewTreeObserver();
 		observer.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -230,6 +233,10 @@ public class GameActivity extends Activity
 			public void onGlobalLayout() {
 				int w = root.getWidth();
 				int h = root.getHeight();
+				if (w == last_w || h == last_h) return;
+				last_w = w;
+				last_h = h;
+				
 				Log.d("OVERLAY", "set dimensions " + w + "x" + h);
 				mLifecycleHandler.updateScreenSize(w, h);
 				if (needsOverlay()) {

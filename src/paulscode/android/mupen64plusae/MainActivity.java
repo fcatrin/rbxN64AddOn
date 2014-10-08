@@ -117,8 +117,12 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             editor.putString("audioBufferSize", "2048" );
             editor.putString("audioResampleAlg", "src-linear" );
             
-            editor.putString("videoResolution", "480" );
-            editor.putString("videoScaling", "zoom" );
+            boolean nativeResolution = getIntent().getBooleanExtra("nativeRes", false);
+            editor.putString("videoResolution", nativeResolution?"0":"480" );
+            
+            boolean keepAspect = getIntent().getBooleanExtra("keepAspect", true);
+            
+            editor.putString("videoScaling", keepAspect?"zoom":"stretch" );
             
             editor.commit();
             
