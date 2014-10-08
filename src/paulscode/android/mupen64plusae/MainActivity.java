@@ -112,6 +112,14 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             editor.putString( "pluginAudio", "libaudio-sdl.so");
             editor.putString( "pluginInput", "libinput-android.so");
             editor.putString( "pluginRsp", "librsp-hle.so");
+            
+            // default audio settings
+            editor.putString("audioBufferSize", "2048" );
+            editor.putString("audioResampleAlg", "src-linear" );
+            
+            editor.putString("videoResolution", "480" );
+            editor.putString("videoScaling", "zoom" );
+            
             editor.commit();
             
             publicIntent = getIntent();
