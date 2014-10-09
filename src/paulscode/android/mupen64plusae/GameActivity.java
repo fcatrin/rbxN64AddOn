@@ -28,17 +28,16 @@ import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
 import retrobox.vinput.GenericGamepad;
-import retrobox.vinput.QuitHandler;
 import retrobox.vinput.GenericGamepad.Analog;
 import retrobox.vinput.Mapper;
 import retrobox.vinput.Mapper.ShortCut;
+import retrobox.vinput.QuitHandler;
 import retrobox.vinput.QuitHandler.QuitHandlerCallback;
 import retrobox.vinput.VirtualEvent.MouseButton;
 import retrobox.vinput.VirtualEventDispatcher;
 import retrobox.vinput.overlay.GamepadController;
 import retrobox.vinput.overlay.GamepadView;
 import retrobox.vinput.overlay.Overlay;
-import retrobox.vinput.overlay.OverlayExtra;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -375,6 +374,8 @@ public class GameActivity extends Activity
     		this.analogMode = analogMode;
     	}
     	
+    	private long lastUpdate = 0;
+    	
     	@Override
     	public void sendAnalog(GenericGamepad.Analog index, double x, double y) {
     		if (index!=Analog.LEFT) return;
@@ -385,6 +386,12 @@ public class GameActivity extends Activity
     		if (newX == analogX && newY == analogY) return;
     		analogX = newX;
     		analogY = newY;
+    		
+    		long t = System.currentTimeMillis();
+    		if (t-lastUpdate>64 || (newX == 0 && newY == 0)) {
+    			lastUpdate = t;
+	    		gamepadView.postInvalidate();
+    		}
     		notifyChange();
     	};
     	
