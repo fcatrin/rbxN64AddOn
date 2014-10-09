@@ -156,7 +156,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         window.setFlags( LayoutParams.FLAG_KEEP_SCREEN_ON, LayoutParams.FLAG_KEEP_SCREEN_ON );
         
         // Set the screen orientation
-        mActivity.setRequestedOrientation( mUserPrefs.videoOrientation );
+        // mActivity.setRequestedOrientation( mUserPrefs.videoOrientation );
         
         // If the orientation changes, the screensize info changes, so we must refresh dependencies
         mUserPrefs = new UserPrefs( mActivity );
