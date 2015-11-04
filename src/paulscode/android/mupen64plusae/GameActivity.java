@@ -272,7 +272,7 @@ public class GameActivity extends Activity
 
     @Override
 	public void onBackPressed() {
-		uiQuitConfirm();
+    	openOptionsMenu();
 	}
 
     private void toastMessage(final String message) {
