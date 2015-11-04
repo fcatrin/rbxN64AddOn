@@ -24,6 +24,7 @@ import java.io.File;
 
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.utils.ImmersiveModeSetter;
 import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
@@ -40,6 +41,7 @@ import retrobox.vinput.overlay.GamepadView;
 import retrobox.vinput.overlay.Overlay;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -140,6 +142,7 @@ public class GameActivity extends Activity
         mLifecycleHandler.onCreateEnd( savedInstanceState );
         
         if (MainActivity.fromRetroBox) {
+        	setImmersiveMode();
         	
         	stateFile = new File(MainActivity.publicIntent.getStringExtra("romPath") + ".state");
         	
@@ -179,10 +182,19 @@ public class GameActivity extends Activity
         }
     }
     
+    private void setImmersiveMode() {
+    	ImmersiveModeSetter.get().setImmersiveMode(getWindow(), isStableLayout());
+	}
+
+	private boolean isStableLayout() {
+		return Mapper.hasGamepads();
+	}
+    
     @Override
     protected void onResume()
     {
         super.onResume();
+        ImmersiveModeSetter.postImmersiveMode(new Handler(), getWindow(), isStableLayout());
         mLifecycleHandler.onResume();
     }
     
