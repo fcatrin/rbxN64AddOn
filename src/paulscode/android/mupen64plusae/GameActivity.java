@@ -201,12 +201,20 @@ public class GameActivity extends Activity
     
     @Override
 	public boolean onGenericMotionEvent(MotionEvent event) {
+    	if (RetroBoxDialog.isDialogVisible(this)) {
+    		return super.onGenericMotionEvent(event);
+    	}
+    	
 		if (analogGamepad != null && analogGamepad.onGenericMotionEvent(event)) return true;
 		return super.onGenericMotionEvent(event);
 	}
     
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
+		if (RetroBoxDialog.isDialogVisible(this)) {
+			return super.dispatchTouchEvent(ev);
+		}
+		
 		if (gamepadView.isVisible() && gamepadController.onTouchEvent(ev)) {
 			Log.d("TOUCH", "dispatched to gamepadController");
 			if (Overlay.requiresRedraw) {

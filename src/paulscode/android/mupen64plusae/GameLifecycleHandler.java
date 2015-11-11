@@ -37,6 +37,7 @@ import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import paulscode.android.mupen64plusae.util.Demultiplexer;
 import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.utils.RetroBoxDialog;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -282,7 +283,16 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
     public boolean onKey( View view, int keyCode, KeyEvent event )
     {
         boolean keyDown = event.getAction() == KeyEvent.ACTION_DOWN;
-        if (MainActivity.fromRetroBox && GameActivity.mapper.handleKeyEvent(event, keyCode, keyDown)) return true;
+        if (MainActivity.fromRetroBox) {
+        	if (RetroBoxDialog.isDialogVisible(mActivity)) {
+        		if (keyDown) {
+        			return RetroBoxDialog.onKeyDown(mActivity, keyCode, event);
+        		} else {
+        			return RetroBoxDialog.onKeyUp(mActivity, keyCode, event);
+        		}
+        	}
+        	if (GameActivity.mapper.handleKeyEvent(event, keyCode, keyDown)) return true;
+        }
         
         // For devices with an action bar, absorb all back key presses
         // and toggle the action bar
