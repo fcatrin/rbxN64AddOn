@@ -17,5 +17,8 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true" />
-
+    
+    <include layout="@layout/modal_dialog_list" />
+    <include layout="@layout/modal_dialog_actions" />
+    
 </FrameLayout>

@@ -21,10 +21,15 @@
 package paulscode.android.mupen64plusae;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import retrobox.paulscode.android.mupen64plus.free.R;
 import retrobox.utils.ImmersiveModeSetter;
+import retrobox.utils.ListOption;
+import retrobox.utils.RetroBoxDialog;
+import retrobox.utils.RetroBoxUtils;
 import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
@@ -39,6 +44,9 @@ import retrobox.vinput.VirtualEventDispatcher;
 import retrobox.vinput.overlay.GamepadController;
 import retrobox.vinput.overlay.GamepadView;
 import retrobox.vinput.overlay.Overlay;
+import xtvapps.core.AndroidFonts;
+import xtvapps.core.Callback;
+import xtvapps.core.content.KeyValue;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,60 +82,37 @@ public class GameActivity extends Activity
         mLifecycleHandler = new GameLifecycleHandler( this );
     }
     
-    
-    static final private int CANCEL_ID = Menu.FIRST +1;
-    static final private int LOAD_ID = Menu.FIRST +2;
-    static final private int SAVE_ID = Menu.FIRST +3;
-    static final private int QUIT_ID = Menu.FIRST +4;
-    
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu )
-    {
-    	if (MainActivity.fromRetroBox) {
-            menu.add(0, CANCEL_ID, 0, "Cancel");
-            menu.add(0, LOAD_ID, 0, "Load State");
-            menu.add(0, SAVE_ID, 0, "Save State");
-            menu.add(0, QUIT_ID, 0, "Quit");
-    	} else {
-    		mMenuHandler.onCreateOptionsMenu( menu );
-    	}
-        return super.onCreateOptionsMenu( menu );
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item )
-    {
-    	if (!MainActivity.fromRetroBox) {
-    		mMenuHandler.onOptionsItemSelected( item );
-    	}
-        return super.onOptionsItemSelected( item );
-    }
-    
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-    	if (MainActivity.fromRetroBox) {
-	    	if (item != null) {
-		        switch (item.getItemId()) {
-		        case LOAD_ID : uiLoadState(); return true;
-		        case SAVE_ID : uiSaveState(); return true;
-		        case QUIT_ID : uiQuit(); return true;
-		        }
-	    	}
-    	}
-        return super.onMenuItemSelected(featureId, item);
-    }
-    
-    @Override
-	public boolean onMenuOpened(int featureId, Menu menu) {
-		onPause();
-		return super.onMenuOpened(featureId, menu);
-	}
+    private void openRetroBoxMenu() {
+    	onPause();
+    	
+    	List<ListOption> options = new ArrayList<ListOption>();
+    	options.add(new ListOption("", "Cancel"));
+    	options.add(new ListOption("load", "Load State"));
+    	options.add(new ListOption("save", "Save State"));
+    	options.add(new ListOption("quit", "Quit"));
+    	
+    	
+    	RetroBoxDialog.showListDialog(this, "RetroBoxTV", options, new Callback<KeyValue>() {
+			@Override
+			public void onResult(KeyValue result) {
+				String key = result.getKey();
+				if (key.equals("load")) {
+					uiLoadState();
+				} else if (key.equals("save")) {
+					uiSaveState();
+				} else if (key.equals("quit")) {
+					uiQuit();
+				}
+				onResume();
+			}
 
-	@Override
-	public void onOptionsMenuClosed(Menu menu) {
-		onResume();
-		super.onOptionsMenuClosed(menu);
-	}
+			@Override
+			public void onError() {
+				onResume();
+			}
+		});
+    	
+    }
     
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -140,6 +125,8 @@ public class GameActivity extends Activity
         mLifecycleHandler.onCreateBegin( savedInstanceState );
         super.onCreate( savedInstanceState );
         mLifecycleHandler.onCreateEnd( savedInstanceState );
+        
+        AndroidFonts.setViewFont(findViewById(R.id.txtDialogListTitle), RetroBoxUtils.FONT_DEFAULT_M);
         
         if (MainActivity.fromRetroBox) {
         	setImmersiveMode();
@@ -272,7 +259,9 @@ public class GameActivity extends Activity
 
     @Override
 	public void onBackPressed() {
-    	openOptionsMenu();
+    	if (RetroBoxDialog.cancelDialog(this)) return;
+    	
+    	openRetroBoxMenu();
 	}
 
     private void toastMessage(final String message) {
@@ -439,7 +428,7 @@ public class GameActivity extends Activity
 			case EXIT: if (!down) uiQuitConfirm(); return true;
 			case LOAD_STATE: if (!down) uiLoadState(); return true;
 			case SAVE_STATE: if (!down) uiSaveState(); return true;
-			case MENU : if (!down) openOptionsMenu(); return true;
+			case MENU : if (!down) openRetroBoxMenu(); return true;
 			default:
 				return false;
 			}
