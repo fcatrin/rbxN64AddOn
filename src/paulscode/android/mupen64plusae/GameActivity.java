@@ -51,8 +51,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +60,7 @@ import android.widget.Toast;
 
 public class GameActivity extends Activity
 {
+	private static final String LOGTAG = GameActivity.class.getName(); 
     private final GameLifecycleHandler mLifecycleHandler;
     private GameMenuHandler mMenuHandler;
     
@@ -74,6 +73,7 @@ public class GameActivity extends Activity
     private View mSurfaceView;
     
     private File stateFile = null;
+    private int  stateSlot = 0;
     
     AnalogGamepad analogGamepad;
     
@@ -131,8 +131,9 @@ public class GameActivity extends Activity
         if (MainActivity.fromRetroBox) {
         	setImmersiveMode();
         	
-        	stateFile = new File(MainActivity.publicIntent.getStringExtra("romPath") + ".state");
-        	
+        	String saveStateDir = MainActivity.publicIntent.getStringExtra("saveStateName"); 
+        	stateFile = new File(saveStateDir, "save");
+
         	gamepadController = new GamepadController();
         	vinputDispatcher = new VirtualInputDispatcher();
         	
@@ -276,14 +277,18 @@ public class GameActivity extends Activity
     	Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
     
+    private String getSaveStateFileName() {
+    	return stateFile.getAbsolutePath() + "_" + stateSlot + ".state";
+    }
+    
     private void uiLoadState() {
-    	CoreInterfaceNative.emuLoadFile( stateFile.getAbsolutePath() );
+    	CoreInterfaceNative.emuLoadFile(getSaveStateFileName());
 
     	toastMessage("State was restored");
     }
 
     private void uiSaveState() {
-    	CoreInterfaceNative.emuSaveFile( stateFile.getAbsolutePath() );
+    	CoreInterfaceNative.emuSaveFile(getSaveStateFileName());
     	toastMessage("State was saved");
     }
 
