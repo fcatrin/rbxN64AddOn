@@ -22,7 +22,7 @@
 package paulscode.android.mupen64plusae.util;
 
 import paulscode.android.mupen64plusae.persistent.AppData;
-import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.v2.paulscode.android.mupen64plus.free.R;
 import android.content.Context;
 import android.os.Bundle;
 import java.io.InputStream;

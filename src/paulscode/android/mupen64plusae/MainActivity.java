@@ -23,7 +23,7 @@ package paulscode.android.mupen64plusae;
 import java.io.File;
 import java.util.List;
 
-import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.v2.paulscode.android.mupen64plus.free.R;
 import retrobox.vinput.Mapper;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;

@@ -20,7 +20,7 @@
  */
 package paulscode.android.mupen64plusae.persistent;
 
-import retrobox.paulscode.android.mupen64plus.free.R;
+import retrobox.v2.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.persistent.OptionDialog.Listener;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
