@@ -26,6 +26,7 @@ import java.util.List;
 
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import retrobox.v2.paulscode.android.mupen64plus.free.R;
+import retrobox.utils.GamepadInfoDialog;
 import retrobox.utils.ImmersiveModeSetter;
 import retrobox.utils.ListOption;
 import retrobox.utils.RetroBoxDialog;
@@ -46,6 +47,7 @@ import retrobox.vinput.overlay.GamepadView;
 import retrobox.vinput.overlay.Overlay;
 import xtvapps.core.AndroidFonts;
 import xtvapps.core.Callback;
+import xtvapps.core.SimpleCallback;
 import xtvapps.core.content.KeyValue;
 import android.app.Activity;
 import android.os.Bundle;
@@ -77,6 +79,8 @@ public class GameActivity extends Activity
     
     AnalogGamepad analogGamepad;
     
+	private GamepadInfoDialog gamepadInfoDialog;
+    
     public GameActivity()
     {
         mLifecycleHandler = new GameLifecycleHandler( this );
@@ -89,6 +93,7 @@ public class GameActivity extends Activity
     	options.add(new ListOption("", "Cancel"));
     	options.add(new ListOption("load", "Load State"));
     	options.add(new ListOption("save", "Save State"));
+    	options.add(new ListOption("help", "Help"));
     	options.add(new ListOption("quit", "Quit"));
     	
     	
@@ -102,6 +107,9 @@ public class GameActivity extends Activity
 					uiSaveState();
 				} else if (key.equals("quit")) {
 					uiQuit();
+				} else if (key.equals("help")) {
+					uiHelp();
+					return;
 				}
 				onResume();
 			}
@@ -127,6 +135,12 @@ public class GameActivity extends Activity
         mLifecycleHandler.onCreateEnd( savedInstanceState );
         
         AndroidFonts.setViewFont(findViewById(R.id.txtDialogListTitle), RetroBoxUtils.FONT_DEFAULT_M);
+        
+        AndroidFonts.setViewFont(findViewById(R.id.txtGamepadInfoTop), RetroBoxUtils.FONT_DEFAULT_M);
+        AndroidFonts.setViewFont(findViewById(R.id.txtGamepadInfoBottom), RetroBoxUtils.FONT_DEFAULT_M);
+
+        gamepadInfoDialog = new GamepadInfoDialog(this);
+        gamepadInfoDialog.loadFromIntent(MainActivity.publicIntent);
         
         if (MainActivity.fromRetroBox) {
         	setImmersiveMode();
@@ -290,6 +304,15 @@ public class GameActivity extends Activity
     private void uiSaveState() {
     	CoreInterfaceNative.emuSaveFile(getSaveStateFileName());
     	toastMessage("State was saved");
+    }
+    
+    protected void uiHelp() {
+		RetroBoxDialog.showGamepadDialogIngame(this, gamepadInfoDialog, new SimpleCallback() {
+			@Override
+			public void onResult() {
+				onResume();
+			}
+		});
     }
 
 	private void uiQuit() {
