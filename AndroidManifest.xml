@@ -3,8 +3,8 @@
     package="retrobox.v2.paulscode.android.mupen64plus.free"
     android:installLocation="auto"
     android:sharedUserId="psychoworld.retrobox.v2"
-    android:versionCode="36009"
-    android:versionName="2.4.4-9" >
+    android:versionCode="36010"
+    android:versionName="2.4.4-10" >
 
     <uses-feature android:glEsVersion="0x00020000" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
