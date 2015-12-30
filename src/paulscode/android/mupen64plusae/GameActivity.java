@@ -392,7 +392,7 @@ public class GameActivity extends Activity
     	int buttonMapRealAnalog[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
-    			BTN_L, BTN_R, BTN_Z, BTN_Z,
+    			CPD_L, CPD_R, BTN_Z, BTN_R,
     			CPD_L, CPD_R, MODE, START
     	};
 
@@ -400,8 +400,8 @@ public class GameActivity extends Activity
     	int buttonMapRealDigital[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
-    			BTN_L, BTN_R, CPD_L, CPD_R,
-    			BTN_Z, BTN_R, MODE, START
+    			CPD_L, CPD_R, BTN_L, BTN_Z,
+    			CPD_L, CPD_R, MODE, START
     	};
 
     	
