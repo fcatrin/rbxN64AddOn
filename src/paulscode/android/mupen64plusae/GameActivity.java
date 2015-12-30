@@ -179,6 +179,11 @@ public class GameActivity extends Activity
 
 				@Override
 				public void onDigitalY(Axis axis, boolean on) {}
+				
+				@Override
+				public void onTriggers(String deviceDescriptor, int deviceId, boolean left, boolean right) {
+					mapper.handleTriggerEvent(deviceDescriptor, deviceId, left, right); 
+				}
 
     		});
         }
@@ -231,7 +236,6 @@ public class GameActivity extends Activity
 		}
 		
 		if (gamepadView.isVisible() && gamepadController.onTouchEvent(ev)) {
-			Log.d("TOUCH", "dispatched to gamepadController");
 			if (Overlay.requiresRedraw) {
 				Overlay.requiresRedraw = false;
 				gamepadView.invalidate();
@@ -388,10 +392,11 @@ public class GameActivity extends Activity
     	int buttonMapRealAnalog[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
-    			BTN_Z, BTN_R, CPD_L, CPD_R,
-    			BTN_L, BTN_R, MODE, START
+    			BTN_L, BTN_R, BTN_Z, BTN_Z,
+    			CPD_L, CPD_R, MODE, START
     	};
 
+    	// TO DO verify digital
     	int buttonMapRealDigital[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
