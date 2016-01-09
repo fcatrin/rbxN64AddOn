@@ -170,8 +170,8 @@ public class GameActivity extends Activity
     			public void onMouseMove(int mousex, int mousey) {}
     			
     			@Override
-    			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy) {
-    				vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy);
+    			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty) {
+    				vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
     			}
 
 				@Override
@@ -418,14 +418,26 @@ public class GameActivity extends Activity
     	
     	private long lastUpdate = 0;
     	
+    	private int getDpadSignature() {
+    		return (buttons[DPD_L]?1:0) * 8 + (buttons[DPD_R]?1:0) * 4 + (buttons[DPD_U]?1:0) * 2 + (buttons[DPD_D]?1:0); 
+    	}
+    	
     	@Override
-    	public void sendAnalog(GenericGamepad gamepad, GenericGamepad.Analog index, double x, double y) {
+    	public void sendAnalog(GenericGamepad gamepad, GenericGamepad.Analog index, double x, double y, double hatx, double haty) {
     		if (index!=Analog.LEFT) return;
     		
     		int newX = (int)(ANALOG_MAX_X * x);
     		int newY = (int)(ANALOG_MAX_Y * y);
     		
-    		if (newX == analogX && newY == analogY) return;
+    		int oldDpad = getDpadSignature(); 
+    		buttons[DPD_L] = hatx<0;
+    		buttons[DPD_R] = hatx>0;
+    		buttons[DPD_U] = haty<0;
+    		buttons[DPD_D] = haty>0;
+    		
+    		int newDpad = getDpadSignature();
+    		
+    		if (newX == analogX && newY == analogY && oldDpad == newDpad) return;
     		analogX = newX;
     		analogY = newY;
     		
