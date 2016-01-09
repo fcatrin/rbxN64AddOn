@@ -327,12 +327,14 @@ public class PlayMenuActivity extends PreferenceActivity implements OnPreference
             boolean needs3 = mUserPrefs.isInputEnabled3 && !mUserPrefs.playerMap.isMapped( 3 );
             boolean needs4 = mUserPrefs.isInputEnabled4 && !mUserPrefs.playerMap.isMapped( 4 );
             
-            if( needs1 || needs2 || needs3 || needs4 )
-            {
-                @SuppressWarnings( "deprecation" )
-                PlayerMapPreference pref = (PlayerMapPreference) findPreference( "playerMap" );
-                pref.show();
-                return;
+            if (!MainActivity.fromRetroBox) {
+	            if( needs1 || needs2 || needs3 || needs4 )
+	            {
+	                @SuppressWarnings( "deprecation" )
+	                PlayerMapPreference pref = (PlayerMapPreference) findPreference( "playerMap" );
+	                pref.show();
+	                return;
+	            }
             }
         }
         

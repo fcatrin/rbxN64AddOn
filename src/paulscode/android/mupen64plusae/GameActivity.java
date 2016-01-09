@@ -170,8 +170,8 @@ public class GameActivity extends Activity
     			public void onMouseMove(int mousex, int mousey) {}
     			
     			@Override
-    			public void onAxisChange(float axisx, float axisy) {
-    				vinputDispatcher.sendAnalog(Analog.LEFT, axisx, -axisy);
+    			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy) {
+    				vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy);
     			}
 
 				@Override
@@ -419,7 +419,7 @@ public class GameActivity extends Activity
     	private long lastUpdate = 0;
     	
     	@Override
-    	public void sendAnalog(GenericGamepad.Analog index, double x, double y) {
+    	public void sendAnalog(GenericGamepad gamepad, GenericGamepad.Analog index, double x, double y) {
     		if (index!=Analog.LEFT) return;
     		
     		int newX = (int)(ANALOG_MAX_X * x);
@@ -434,29 +434,30 @@ public class GameActivity extends Activity
     			lastUpdate = t;
 	    		gamepadView.postInvalidate();
     		}
-    		notifyChange();
+    		notifyChange(gamepad==null?0:gamepad.player);
     	};
     	
-    	private void notifyChange() {
-            CoreInterfaceNative.setControllerState( 0 /*player*/, buttons, analogX, analogY);
+    	private void notifyChange(int player) {
+    		Log.d(LOGTAG, "Send change for player " + player + " " + buttons + " x, y = " + analogX + ", " + analogY);
+            CoreInterfaceNative.setControllerState(player, buttons, analogX, analogY);
     	}
     	
 		@Override
-		public void sendKey(int keyCode, boolean down) {
-			int index = Mapper.genericJoysticks[0].getOriginIndex(keyCode);
+		public void sendKey(GenericGamepad gamepad, int keyCode, boolean down) {
+			int index = gamepad.getOriginIndex(keyCode);
 			if (index == MODE) {
 				if (!down) {
 					analogMode = !analogMode;
-					toastMessage("Using " + (analogMode?"ANALOG":"DIGITAL" + " mode"));
+					toastMessage("Using " + (analogMode?"ANALOG":("DIGITAL" + " mode")));
 				}
 				return;
 			}
 			if (index>=0) {
-				int translatedIndex = Mapper.genericJoysticks[0].getDeviceDescriptor()==null?
+				int translatedIndex = gamepad.getDeviceDescriptor()==null?
 						buttonMapOverlay[index]:
 						(analogMode?buttonMapRealAnalog[index]:buttonMapRealDigital[index]);
 				buttons[translatedIndex] = down;
-				notifyChange();
+				notifyChange(gamepad.player);
 			}
 		}
 

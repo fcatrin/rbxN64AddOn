@@ -124,15 +124,20 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             
             editor.putString("videoScaling", keepAspect?"zoom":"stretch" );
             
-            editor.commit();
-            
+           
             publicIntent = getIntent();
             
-            for(int i=0; i<2; i++) {
+            for(int i=0; i<4; i++) {
             	String prefix = "j" + (i+1);
             	String deviceDescriptor = getIntent().getStringExtra(prefix + "DESCRIPTOR");
-            	Mapper.registerGamepad(i, deviceDescriptor);
+        		Mapper.registerGamepad(i, deviceDescriptor);
+            	if (deviceDescriptor!=null) {
+            		editor.putBoolean("inputEnabled" + (i+1), true);
+            	}
             }
+            
+            editor.commit();
+
         }
         
         String videoPlugin = getIntent().getStringExtra("videoPlugin");
@@ -143,6 +148,8 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             editor.putString( "pluginVideo", videoPlugin).commit();
         	
         }
+        
+       
         // Enforce any locale overrides
         new UserPrefs( this ).enforceLocale( this );
         
