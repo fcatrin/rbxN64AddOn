@@ -175,10 +175,10 @@ public class GameActivity extends Activity
     			}
 
 				@Override
-				public void onDigitalX(Axis axis, boolean on) {}
+				public void onDigitalX(GenericGamepad gamepad, Axis axis, boolean on) {}
 
 				@Override
-				public void onDigitalY(Axis axis, boolean on) {}
+				public void onDigitalY(GenericGamepad gamepad, Axis axis, boolean on) {}
 				
 				@Override
 				public void onTriggers(String deviceDescriptor, int deviceId, boolean left, boolean right) {
@@ -405,12 +405,12 @@ public class GameActivity extends Activity
     	};
 
     	
-    	public boolean[] buttons = new boolean[NUM_N64_BUTTONS];
+    	public boolean[][] buttons = new boolean[4][NUM_N64_BUTTONS];
     	
     	private static final int ANALOG_MAX_X = 80;
     	private static final int ANALOG_MAX_Y = 80;
-    	int analogX = 0;
-    	int analogY = 0;
+    	int analogX[] = new int[4];
+    	int analogY[] = new int[4];
 
     	public void setAnalogMode(boolean analogMode) {
     		this.analogMode = analogMode;
@@ -418,8 +418,9 @@ public class GameActivity extends Activity
     	
     	private long lastUpdate = 0;
     	
-    	private int getDpadSignature() {
-    		return (buttons[DPD_L]?1:0) * 8 + (buttons[DPD_R]?1:0) * 4 + (buttons[DPD_U]?1:0) * 2 + (buttons[DPD_D]?1:0); 
+    	private int getDpadSignature(int player) {
+    		boolean dpad[] = buttons[player];
+    		return (dpad[DPD_L]?1:0) * 8 + (dpad[DPD_R]?1:0) * 4 + (dpad[DPD_U]?1:0) * 2 + (dpad[DPD_D]?1:0); 
     	}
     	
     	@Override
@@ -429,17 +430,20 @@ public class GameActivity extends Activity
     		int newX = (int)(ANALOG_MAX_X * x);
     		int newY = (int)(ANALOG_MAX_Y * y);
     		
-    		int oldDpad = getDpadSignature(); 
-    		buttons[DPD_L] = hatx<0;
-    		buttons[DPD_R] = hatx>0;
-    		buttons[DPD_U] = haty<0;
-    		buttons[DPD_D] = haty>0;
+    		int player = gamepad.player;
     		
-    		int newDpad = getDpadSignature();
+    		int oldDpad = getDpadSignature(player); 
+    		boolean dpad[] = buttons[player];
+    		dpad[DPD_L] = hatx<0;
+    		dpad[DPD_R] = hatx>0;
+    		dpad[DPD_U] = haty<0;
+    		dpad[DPD_D] = haty>0;
     		
-    		if (newX == analogX && newY == analogY && oldDpad == newDpad) return;
-    		analogX = newX;
-    		analogY = newY;
+    		int newDpad = getDpadSignature(player);
+    		
+    		if (newX == analogX[player] && newY == analogY[player] && oldDpad == newDpad) return;
+    		analogX[player] = newX;
+    		analogY[player] = newY;
     		
     		long t = System.currentTimeMillis();
     		if (t-lastUpdate>64 || (newX == 0 && newY == 0)) {
@@ -450,8 +454,8 @@ public class GameActivity extends Activity
     	};
     	
     	private void notifyChange(int player) {
-    		Log.d(LOGTAG, "Send change for player " + player + " " + buttons + " x, y = " + analogX + ", " + analogY);
-            CoreInterfaceNative.setControllerState(player, buttons, analogX, analogY);
+    		// Log.d(LOGTAG, "Send change for player " + player + " " + buttons[player] + " x, y = " + analogX + ", " + analogY);
+            CoreInterfaceNative.setControllerState(player, buttons[player], analogX[player], analogY[player]);
     	}
     	
 		@Override
@@ -468,7 +472,7 @@ public class GameActivity extends Activity
 				int translatedIndex = gamepad.getDeviceDescriptor()==null?
 						buttonMapOverlay[index]:
 						(analogMode?buttonMapRealAnalog[index]:buttonMapRealDigital[index]);
-				buttons[translatedIndex] = down;
+				buttons[gamepad.player][translatedIndex] = down;
 				notifyChange(gamepad.player);
 			}
 		}
