@@ -334,7 +334,7 @@ public class GameActivity extends Activity
 	
 	class VirtualInputDispatcher implements VirtualEventDispatcher {
 		
-		private boolean analogMode = true;
+		private boolean analogMode[] = {true, true, true, true};
 		
         /** N64 button: dpad-right. */
         public static final int DPD_R = 0;
@@ -413,7 +413,9 @@ public class GameActivity extends Activity
     	int analogY[] = new int[4];
 
     	public void setAnalogMode(boolean analogMode) {
-    		this.analogMode = analogMode;
+    		for(int i=0; i<4; i++) {
+    			this.analogMode[i] = analogMode;
+    		}
     	}
     	
     	private long lastUpdate = 0;
@@ -455,23 +457,31 @@ public class GameActivity extends Activity
     	
     	private void notifyChange(int player) {
     		// Log.d(LOGTAG, "Send change for player " + player + " " + buttons[player] + " x, y = " + analogX + ", " + analogY);
-            CoreInterfaceNative.setControllerState(player, buttons[player], analogX[player], analogY[player]);
+    		if (analogMode[player]) {
+	    		boolean dpad[] = buttons[player];
+	    		int aX = dpad[DPD_L] ? -ANALOG_MAX_X : (dpad[DPD_R] ? ANALOG_MAX_X : analogX[player]);
+	    		int aY = dpad[DPD_D] ? -ANALOG_MAX_Y : (dpad[DPD_U] ? ANALOG_MAX_Y : analogY[player]);
+	            CoreInterfaceNative.setControllerState(player, buttons[player], aX, aY);
+    		} else {
+    			CoreInterfaceNative.setControllerState(player, buttons[player], analogX[player], analogY[player]);
+    		}
     	}
     	
 		@Override
 		public void sendKey(GenericGamepad gamepad, int keyCode, boolean down) {
 			int index = gamepad.getOriginIndex(keyCode);
+			int player = gamepad.player;
 			if (index == MODE) {
 				if (!down) {
-					analogMode = !analogMode;
-					toastMessage("Using " + (analogMode?"ANALOG":("DIGITAL" + " mode")));
+					analogMode[player] = !analogMode[player];
+					toastMessage("Using " + (analogMode[player]?"ANALOG":("DIGITAL" + " mode on player " + (player+1))));
 				}
 				return;
 			}
 			if (index>=0) {
 				int translatedIndex = gamepad.getDeviceDescriptor()==null?
 						buttonMapOverlay[index]:
-						(analogMode?buttonMapRealAnalog[index]:buttonMapRealDigital[index]);
+						(analogMode[player]?buttonMapRealAnalog[index]:buttonMapRealDigital[index]);
 				buttons[gamepad.player][translatedIndex] = down;
 				notifyChange(gamepad.player);
 			}
