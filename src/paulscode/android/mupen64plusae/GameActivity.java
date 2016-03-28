@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
-import retrobox.v2.paulscode.android.mupen64plus.free.R;
 import retrobox.utils.GamepadInfoDialog;
 import retrobox.utils.ImmersiveModeSetter;
 import retrobox.utils.ListOption;
 import retrobox.utils.RetroBoxDialog;
 import retrobox.utils.RetroBoxUtils;
+import retrobox.v2.paulscode.android.mupen64plus.free.R;
 import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
@@ -48,6 +48,7 @@ import retrobox.vinput.overlay.Overlay;
 import xtvapps.core.AndroidFonts;
 import xtvapps.core.Callback;
 import xtvapps.core.SimpleCallback;
+import xtvapps.core.Utils;
 import xtvapps.core.content.KeyValue;
 import android.app.Activity;
 import android.os.Bundle;
@@ -75,7 +76,7 @@ public class GameActivity extends Activity
     private View mSurfaceView;
     
     private File stateFile = null;
-    private int  stateSlot = 0;
+    private int  saveSlot = 0;
     
     AnalogGamepad analogGamepad;
     
@@ -86,13 +87,14 @@ public class GameActivity extends Activity
         mLifecycleHandler = new GameLifecycleHandler( this );
     }
     
-    private void openRetroBoxMenu() {
-    	onPause();
+    private void openRetroBoxMenu(boolean pause) {
+    	if (pause) onPause();
     	
     	List<ListOption> options = new ArrayList<ListOption>();
     	options.add(new ListOption("", "Cancel"));
     	options.add(new ListOption("load", "Load State"));
     	options.add(new ListOption("save", "Save State"));
+    	options.add(new ListOption("slot", "Change Save State slot", "Slot " + saveSlot));
     	options.add(new ListOption("help", "Help"));
     	options.add(new ListOption("quit", "Quit"));
     	
@@ -107,6 +109,9 @@ public class GameActivity extends Activity
 					uiSaveState();
 				} else if (key.equals("quit")) {
 					uiQuit();
+				} else if (key.equals("slot")) {
+					uiChangeSlot();
+					return;
 				} else if (key.equals("help")) {
 					uiHelp();
 					return;
@@ -288,7 +293,7 @@ public class GameActivity extends Activity
 	public void onBackPressed() {
     	if (RetroBoxDialog.cancelDialog(this)) return;
     	
-    	openRetroBoxMenu();
+    	openRetroBoxMenu(true);
 	}
 
     private void toastMessage(final String message) {
@@ -296,7 +301,7 @@ public class GameActivity extends Activity
     }
     
     private String getSaveStateFileName() {
-    	return stateFile.getAbsolutePath() + "_" + stateSlot + ".state";
+    	return stateFile.getAbsolutePath() + "_" + saveSlot + ".state";
     }
     
     private void uiLoadState() {
@@ -331,6 +336,34 @@ public class GameActivity extends Activity
 			}
 		});
     }
+    
+	private void uiChangeSlot() {
+		List<ListOption> options = new ArrayList<ListOption>();
+		options.add(new ListOption("", "Cancel"));
+		for (int i = 0; i < 5; i++) {
+			options.add(new ListOption((i+1) + "", "Use save slot " + i,
+					(i == saveSlot) ? "Active" : ""));
+		}
+
+		RetroBoxDialog.showListDialog(this, "RetroBoxTV", options,
+				new Callback<KeyValue>() {
+					@Override
+					public void onResult(KeyValue result) {
+						int slot = Utils.str2i(result.getKey())-1;
+						if (slot >= 0 && slot != saveSlot) {
+							saveSlot = slot;
+							toastMessage("Save State slot changed to " + slot);
+						}
+						openRetroBoxMenu(false);
+					}
+
+					@Override
+					public void onError() {
+						openRetroBoxMenu(false);
+					}
+
+				});
+	}
 	
 	class VirtualInputDispatcher implements VirtualEventDispatcher {
 		
@@ -496,7 +529,7 @@ public class GameActivity extends Activity
 			case EXIT: if (!down) uiQuitConfirm(); return true;
 			case LOAD_STATE: if (!down) uiLoadState(); return true;
 			case SAVE_STATE: if (!down) uiSaveState(); return true;
-			case MENU : if (!down) openRetroBoxMenu(); return true;
+			case MENU : if (!down) openRetroBoxMenu(true); return true;
 			default:
 				return false;
 			}
