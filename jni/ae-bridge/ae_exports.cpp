@@ -181,6 +181,19 @@ extern "C" DECLSPEC void Java_paulscode_android_mupen64plusae_CoreInterfaceNativ
     env->ReleaseStringUTFChars(filename, nativeString);
 }
 
+extern "C" DECLSPEC void Java_paulscode_android_mupen64plusae_CoreInterfaceNative_emuScreenshot(JNIEnv* env, jclass cls, jstring filename)
+{
+	if (filename == NULL) {
+		(*CoreDoCommand)(M64CMD_TAKE_NEXT_SCREENSHOT, 0, NULL);
+	} else {
+		const char *nativeString = env->GetStringUTFChars(filename, 0);
+		(*CoreDoCommand)(M64CMD_TAKE_NEXT_SCREENSHOT, 0, (void *) nativeString);
+		env->ReleaseStringUTFChars(filename, nativeString);
+	}
+
+}
+
+
 extern "C" DECLSPEC jint Java_paulscode_android_mupen64plusae_CoreInterfaceNative_emuGetState(JNIEnv* env, jclass cls)
 {
     int state = 0;

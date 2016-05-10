@@ -5,12 +5,14 @@ SRCDIR := ../../src
 
 LOCAL_MODULE := core
 LOCAL_SHARED_LIBRARIES := ae-imports SDL2
+LOCAL_STATIC_LIBRARIES := png
 LOCAL_ARM_MODE := arm
 
 LOCAL_C_INCLUDES :=         \
     $(LOCAL_PATH)/$(SRCDIR) \
     $(SDL_INCLUDES)         \
     $(AE_BRIDGE_INCLUDES)   \
+    $(PNG_INCLUDES)   \
 
 LOCAL_SRC_FILES :=                              \
     $(SRCDIR)/api/callbacks.c                   \
@@ -38,6 +40,7 @@ LOCAL_SRC_FILES :=                              \
     $(SRCDIR)/memory/tlb.c                      \
     $(SRCDIR)/osal/dynamiclib_unix.c            \
     $(SRCDIR)/osal/files_unix.c                 \
+    $(SRCDIR)/osd/screenshot.cpp                \
     $(SRCDIR)/plugin/dummy_audio.c              \
     $(SRCDIR)/plugin/dummy_input.c              \
     $(SRCDIR)/plugin/dummy_rsp.c                \

@@ -347,5 +347,7 @@ typedef struct {
   m64p_error (*VidExtFuncResizeWindow)(int, int);
 } m64p_video_extension_functions;
 
+extern char shot_single_filename[];
+
 #endif /* define M64P_TYPES_H */
 

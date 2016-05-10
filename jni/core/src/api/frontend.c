@@ -48,6 +48,8 @@
 #include "osd/screenshot.h"
 #include "plugin/plugin.h"
 
+char shot_single_filename[1024] = "";
+
 /* some local state variables */
 static int l_CoreInit = 0;
 static int l_ROMOpen = 0;
@@ -268,8 +270,19 @@ EXPORT m64p_error CALL CoreDoCommand(m64p_command Command, int ParamInt, void *P
             g_FrameCallback = (m64p_frame_callback) ParamPtr;
             return M64ERR_SUCCESS;
         case M64CMD_TAKE_NEXT_SCREENSHOT:
-            if (!g_EmulatorRunning)
+            if (!g_EmulatorRunning) {
+            	DebugMessage(M64MSG_INFO,"M64CMD_TAKE_NEXT_SCREENSHOT invalid state");
                 return M64ERR_INVALID_STATE;
+            }
+
+            if (ParamPtr!=NULL) {
+            	DebugMessage(M64MSG_INFO,"M64CMD_TAKE_NEXT_SCREENSHOT file %s", (char *)ParamPtr);
+            	strcpy(shot_single_filename, (char *)ParamPtr);
+            } else {
+            	DebugMessage(M64MSG_INFO,"M64CMD_TAKE_NEXT_SCREENSHOT default");
+            	strcpy(shot_single_filename, "");
+            }
+
             main_take_next_screenshot();
             return M64ERR_SUCCESS;
         case M64CMD_READ_SCREEN:

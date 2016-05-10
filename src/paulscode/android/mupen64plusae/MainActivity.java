@@ -136,6 +136,9 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             	}
             }
             
+            editor.putString("ScreenshotPath", publicIntent.getStringExtra("screenshotPath"));
+            editor.putString("SaveSRAMPath",   publicIntent.getStringExtra("memCardPath"));
+            
             editor.commit();
 
         }

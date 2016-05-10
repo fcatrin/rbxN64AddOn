@@ -21,6 +21,7 @@
 package paulscode.android.mupen64plusae;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +88,22 @@ public class GameActivity extends Activity
         mLifecycleHandler = new GameLifecycleHandler( this );
     }
     
-    private void openRetroBoxMenu(boolean pause) {
+    private File getTempScreenshotFile() {
+    	return new File(getCacheDir(), "mupen64.png");
+    }
+    
+    private void openRetroBoxMenu(final boolean pause) {
+    	new Handler().postDelayed(new Runnable(){
+
+			@Override
+			public void run() {
+				openRetroBoxMenuPost(pause);
+			}
+		}, 100);
+    }
+    
+    private void openRetroBoxMenuPost(boolean pause) {
+
     	if (pause) onPause();
     	
     	List<ListOption> options = new ArrayList<ListOption>();
@@ -150,7 +166,7 @@ public class GameActivity extends Activity
         if (MainActivity.fromRetroBox) {
         	setImmersiveMode();
         	
-        	String saveStateDir = MainActivity.publicIntent.getStringExtra("saveStateName"); 
+        	String saveStateDir = MainActivity.publicIntent.getStringExtra("saveStatePath"); 
         	stateFile = new File(saveStateDir, "save");
 
         	gamepadController = new GamepadController();
@@ -311,7 +327,10 @@ public class GameActivity extends Activity
     }
 
     private void uiSaveState() {
-    	CoreInterfaceNative.emuSaveFile(getSaveStateFileName());
+    	String fileName = getSaveStateFileName();
+    	// String fileNameScreenShot = fileName + ".png";
+    	// CoreInterfaceNative.emuScreenshot(fileNameScreenShot);
+    	CoreInterfaceNative.emuSaveFile(fileName);
     	toastMessage("State was saved");
     }
     

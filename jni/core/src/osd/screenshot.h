@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#ifdef ANDROID
+#ifdef ANDROID_X
 static inline void ScreenshotRomOpen(void) {}
 static inline void TakeScreenshot(int iFrameNumber) {}
 #else

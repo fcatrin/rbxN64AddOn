@@ -23,9 +23,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-
+/*
 #include <SDL_opengl.h>
 #include <SDL.h>
+*/
 #include <png.h>
 
 #include "osd.h"
@@ -199,21 +200,35 @@ extern "C" void TakeScreenshot(int iFrameNumber)
 {
     char *filename;
 
-    // look for an unused screenshot filename
-    filename = GetNextScreenshotPath();
-    if (filename == NULL)
-        return;
+    bool hasSingleFilename = strlen(shot_single_filename)>0;
+
+    if (hasSingleFilename) {
+    	filename = shot_single_filename;
+    } else {
+		// look for an unused screenshot filename
+		filename = GetNextScreenshotPath();
+		if (filename == NULL)
+			return;
+    }
 
     // get the width and height
     int width = 640;
     int height = 480;
     gfx.readScreen(NULL, &width, &height, 0);
 
+    DebugMessage(M64MSG_ERROR, "Screenshot %dx%d %s", width, height, filename);
+
     // allocate memory for the image
     unsigned char *pucFrame = (unsigned char *) malloc(width * height * 3);
     if (pucFrame == NULL)
     {
-        free(filename);
+    	DebugMessage(M64MSG_ERROR, "Not enough memory for %dx%d", width, height);
+        if (hasSingleFilename) {
+        	strcpy(shot_single_filename, "");
+        } else {
+        	free(filename);
+        }
+
         return;
     }
 
@@ -224,8 +239,13 @@ extern "C" void TakeScreenshot(int iFrameNumber)
     SaveRGBBufferToFile(filename, pucFrame, width, height, width * 3);
     // free the memory
     free(pucFrame);
-    free(filename);
-    // print message -- this allows developers to capture frames and use them in the regression test
-    main_message(M64MSG_INFO, OSD_BOTTOM_LEFT, "Captured screenshot for frame %i.", iFrameNumber);
+
+    if (hasSingleFilename) {
+    	strcpy(shot_single_filename, "");
+    } else {
+    	free(filename);
+        // print message -- this allows developers to capture frames and use them in the regression test
+        main_message(M64MSG_INFO, OSD_BOTTOM_LEFT, "Captured screenshot for frame %i.", iFrameNumber);
+    }
 }
 
