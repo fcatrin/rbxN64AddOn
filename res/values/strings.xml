@@ -410,6 +410,7 @@
     <!-- Asset Extractor -->
     <string name="assetExtractor_initializing">Initializing</string>
     <string name="assetExtractor_progress">%1$.0f%% done: %2$s</string>
+    <string name="assetExtractor_progress_simple">Preparing assets: %1$.0f%% done</string>
     <string name="assetExtractor_finished">Finished</string>
     <string name="assetExtractor_failed">Error extracting app data.\nPlease unplug USB cable, reboot device, and re-launch app.\nFor help, please visit %1$s.</string>
 

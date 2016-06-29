@@ -254,7 +254,7 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
     {
         float percent = ( 100f * mAssetsExtracted ) / (float) TOTAL_ASSETS;
         mAssetsExtracted++;
-        updateText( R.string.assetExtractor_progress, percent, nextFileExtracted );
+        updateText( R.string.assetExtractor_progress_simple, percent );
     }
     
     /**
