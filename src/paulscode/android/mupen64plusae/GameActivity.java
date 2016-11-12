@@ -107,14 +107,14 @@ public class GameActivity extends Activity
     	if (pause) onPause();
     	
     	List<ListOption> options = new ArrayList<ListOption>();
-    	options.add(new ListOption("", "Cancel"));
-    	options.add(new ListOption("load", "Load State"));
-    	options.add(new ListOption("save", "Save State"));
-    	options.add(new ListOption("help", "Help"));
-    	options.add(new ListOption("quit", "Quit"));
+    	options.add(new ListOption("", getString(R.string.emu_opt_cancel)));
+    	options.add(new ListOption("load", getString(R.string.emu_opt_state_load)));
+    	options.add(new ListOption("save", getString(R.string.emu_opt_state_save)));
+    	options.add(new ListOption("help", getString(R.string.emu_opt_help)));
+    	options.add(new ListOption("quit", getString(R.string.emu_opt_quit)));
     	
     	
-    	RetroBoxDialog.showListDialog(this, "RetroBoxTV", options, new Callback<KeyValue>() {
+    	RetroBoxDialog.showListDialog(this, getString(R.string.emu_opt_title), options, new Callback<KeyValue>() {
 			@Override
 			public void onResult(KeyValue result) {
 				String key = result.getKey();
@@ -325,7 +325,8 @@ public class GameActivity extends Activity
     private void uiLoadState() {
     	CoreInterfaceNative.emuLoadFile(getSaveStateFileName());
 
-    	toastMessage("State was restored from slot #" + (saveSlot+1));
+    	String msg = getString(R.string.emu_slot_loaded).replace("{n}", String.valueOf(saveSlot+1));
+    	toastMessage(msg);
     }
 
     private void uiSaveState() {
@@ -333,7 +334,8 @@ public class GameActivity extends Activity
     	// String fileNameScreenShot = fileName + ".png";
     	// CoreInterfaceNative.emuScreenshot(fileNameScreenShot);
     	CoreInterfaceNative.emuSaveFile(fileName);
-    	toastMessage("State was saved to slot #" + (saveSlot+1));
+    	String msg = getString(R.string.emu_slot_saved).replace("{n}", String.valueOf(saveSlot+1));
+    	toastMessage(msg);
     }
     
     protected void uiHelp() {
@@ -366,7 +368,7 @@ public class GameActivity extends Activity
 			list.add(new SaveStateInfo(new File(fileName), R.drawable.platform_n64));
 		}
 		
-		final SaveStateSelectorAdapter adapter = new SaveStateSelectorAdapter(list, saveSlot);
+		final SaveStateSelectorAdapter adapter = new SaveStateSelectorAdapter(this, list, saveSlot);
 		
 		Callback<Integer> callback = new Callback<Integer>() {
 
@@ -394,7 +396,9 @@ public class GameActivity extends Activity
 			
 		};
 		
-		String title = "Select slot to " + (isLoadingState ? "load from" : "save on");
+		String title = isLoadingState ?
+				getString(R.string.emu_slot_load_title) :
+				getString(R.string.emu_slot_save_title);
 		
 		RetroBoxDialog.showSaveStatesDialog(this, title, adapter, callback);
 	}
@@ -541,7 +545,13 @@ public class GameActivity extends Activity
 			if (index == MODE) {
 				if (!down) {
 					analogMode[player] = !analogMode[player];
-					toastMessage("Using " + (analogMode[player]?"ANALOG":("DIGITAL" + " mode on player " + (player+1))));
+					
+					String msg = analogMode[player] ?
+							getString(R.string.emu_n64_control_analog) :
+							getString(R.string.emu_n64_control_digital);
+					msg = msg.replace("{n}", String.valueOf(player+1));
+					
+					toastMessage(msg);
 				}
 				return;
 			}
