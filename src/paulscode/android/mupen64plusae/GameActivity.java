@@ -175,6 +175,8 @@ public class GameActivity extends Activity
         	
             mapper = new Mapper(MainActivity.publicIntent, vinputDispatcher);
             Mapper.initGestureDetector(this);
+            Mapper.joinPorts = MainActivity.publicIntent.getBooleanExtra("joinPorts", false);
+            
             gamepadView = new GamepadView(this, overlay);
             
         	mSurfaceView = findViewById(R.id.gameSurface);
