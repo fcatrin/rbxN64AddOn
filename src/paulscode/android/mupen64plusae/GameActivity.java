@@ -466,7 +466,7 @@ public class GameActivity extends Activity
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
     			CPD_L, CPD_R, BTN_Z, BTN_R,
-    			CPD_L, CPD_R, MODE, START
+    			BTN_L, BTN_R, MODE, START
     	};
 
     	// TO DO verify digital
@@ -474,7 +474,7 @@ public class GameActivity extends Activity
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
     			CPD_L, CPD_R, BTN_L, BTN_Z,
-    			CPD_L, CPD_R, MODE, START
+    			BTN_L, BTN_R, MODE, START
     	};
 
     	
