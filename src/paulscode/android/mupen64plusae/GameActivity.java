@@ -22,6 +22,7 @@ package paulscode.android.mupen64plusae;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
@@ -191,8 +192,9 @@ public class GameActivity extends Activity
     			public void onMouseMove(int mousex, int mousey) {}
     			
     			@Override
-    			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty) {
+    			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty, float raxisx, float raxisy) {
     				vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
+    				vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
     			}
 
 				@Override
@@ -514,7 +516,12 @@ public class GameActivity extends Activity
     		boolean dpad[] = buttons[player];
     		return (dpad[DPD_L]?1:0) * 8 + (dpad[DPD_R]?1:0) * 4 + (dpad[DPD_U]?1:0) * 2 + (dpad[DPD_D]?1:0); 
     	}
-    	
+
+    	private int getCameraSignature(int player) {
+    		boolean dpad[] = buttons[player];
+    		return (dpad[CPD_L]?1:0) * 8 + (dpad[CPD_R]?1:0) * 4 + (dpad[CPD_U]?1:0) * 2 + (dpad[CPD_D]?1:0); 
+    	}
+
     	@Override
     	public void sendAnalog(GenericGamepad gamepad, GenericGamepad.Analog index, double x, double y, double hatx, double haty) {
     		int player = gamepad.player;
@@ -549,12 +556,15 @@ public class GameActivity extends Activity
 		    		gamepadView.postInvalidate();
 	    		}
     		} else if (index == Analog.RIGHT) {
-    			double threshold = -0.2;
+    			double threshold = 0.2;
+    			int oldCamera = getCameraSignature(player); 
     			buttons[player][CPD_U] = y < -threshold;
     			buttons[player][CPD_D] = y >  threshold;
-    			buttons[player][CPD_R] = x < -threshold;
-    			buttons[player][CPD_L] = x >  threshold;
+    			buttons[player][CPD_L] = x < -threshold;
+    			buttons[player][CPD_R] = x >  threshold;
     			
+    			int newCamera = getCameraSignature(player);
+    			if (newCamera == oldCamera) return;
     		}
     		notifyChange(gamepad==null?0:gamepad.player);
     	};

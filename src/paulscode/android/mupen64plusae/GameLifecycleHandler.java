@@ -328,7 +328,9 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         {
             // By default, send Player 1 rumbles through phone vibrator
             vibrator = (Vibrator) mActivity.getSystemService( Context.VIBRATOR_SERVICE );
-            CoreInterface.registerVibrator( 1, vibrator );
+            if (vibrator!=null) {
+            	CoreInterface.registerVibrator( 1, vibrator );
+            }
         }
         
         // Create the touchpad controls, if applicable
