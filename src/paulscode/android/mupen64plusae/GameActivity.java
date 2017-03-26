@@ -112,7 +112,7 @@ public class GameActivity extends Activity
     	options.add(new ListOption("load", getString(R.string.emu_opt_state_load)));
     	options.add(new ListOption("save", getString(R.string.emu_opt_state_save)));
     	if (Mapper.hasGamepads()) {
-    		options.add(new ListOption("controls", "Control Options")); // TODO TRANSLATE
+    		options.add(new ListOption("controls", getString(R.string.emu_n64_control_opt_title)));
     	}
     	options.add(new ListOption("help", getString(R.string.emu_opt_help)));
     	options.add(new ListOption("quit", getString(R.string.emu_opt_quit)));
@@ -177,9 +177,6 @@ public class GameActivity extends Activity
         	gamepadController = new GamepadController();
         	vinputDispatcher = new VirtualInputDispatcher();
         	
-        	//boolean analogMode = MainActivity.publicIntent.getBooleanExtra("GAMEPAD_ANALOG", true);
-        	vinputDispatcher.setAnalogMode(GamepadEmulationMode.NATIVE);
-        	
             mapper = new Mapper(MainActivity.publicIntent, vinputDispatcher);
             Mapper.initGestureDetector(this);
             Mapper.joinPorts = MainActivity.publicIntent.getBooleanExtra("joinPorts", false);
@@ -205,7 +202,7 @@ public class GameActivity extends Activity
     			
     			@Override
     			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty, float raxisx, float raxisy) {
-    				if (controlType == ControlType.Normal) {
+    				if (controlType == ControlType.Original) {
     					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
     					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
     				} else if (controlType == ControlType.Swapped) {
@@ -293,8 +290,8 @@ public class GameActivity extends Activity
 	
 	private int last_w = 0;
 	private int last_h = 0;
-	private enum ControlType {Normal, Swapped, GoldenEye};
-	private ControlType controlType = ControlType.Normal;
+	private enum ControlType {Original, Swapped, GoldenEye};
+	private ControlType controlType = ControlType.Original;
 	
 	private void setupGamepadOverlay(final ViewGroup root) {
 		ViewTreeObserver observer = root.getViewTreeObserver();
@@ -366,27 +363,25 @@ public class GameActivity extends Activity
     
     protected void uiControlOptions() {
     	List<ListOption> options = new ArrayList<ListOption>();
-    	options.add(new ListOption("normal", "Normal"));
-    	options.add(new ListOption("swapped", "Analog controls swapped"));
-    	options.add(new ListOption("goldeneye", "Optimized for Golden Eye"));
+    	options.add(new ListOption("original",  getString(R.string.emu_n64_control_opt_original)));
+    	options.add(new ListOption("swapped",   getString(R.string.emu_n64_control_opt_swapped)));
+    	options.add(new ListOption("goldeneye", getString(R.string.emu_n64_control_opt_goldeneye)));
     	
-    	RetroBoxDialog.showListDialog(this, "Control Options", options, new Callback<KeyValue>() {// TODO TRANSLATE
+    	RetroBoxDialog.showListDialog(this, getString(R.string.emu_n64_control_opt_title), options, new Callback<KeyValue>() {// TODO TRANSLATE
 
 			@Override
 			public void onResult(KeyValue result) {
 				String key = result.getKey();
-				if (key.equals("normal")) {
-					controlType = ControlType.Normal;
-					toastMessage("The analog controls has been restored"); // TODO TRANSLATE
+				if (key.equals("original")) {
+					controlType = ControlType.Original;
 				}
 				if (key.equals("swapped")) {
 					controlType = ControlType.Swapped;
-					toastMessage("The analog controls have been swapped"); // TODO TRANSLATE
 				}
 				if (key.equals("goldeneye")) {
 					controlType = ControlType.GoldenEye;
-					toastMessage("The analog controls has optimized for Golden Eye"); // TODO TRANSLATE
 				}
+				toastActiveControlType();
 				onResume();
 			} 
 		});
@@ -457,16 +452,7 @@ public class GameActivity extends Activity
 		RetroBoxDialog.showSaveStatesDialog(this, title, adapter, callback);
 	}
 	
-	enum GamepadEmulationMode {NATIVE, ANALOG, DIGITAL}; 
-
 	class VirtualInputDispatcher implements VirtualEventDispatcher {
-		
-		
-		private GamepadEmulationMode gamepadEmulationMode[] = {
-				GamepadEmulationMode.NATIVE,
-				GamepadEmulationMode.NATIVE,
-				GamepadEmulationMode.NATIVE,
-				GamepadEmulationMode.NATIVE};
 		
         /** N64 button: dpad-right. */
         public static final int DPD_R = 0;
@@ -521,30 +507,18 @@ public class GameActivity extends Activity
     			BTN_L, BTN_R, START, START
     	};
 
-    	int buttonMapRealNative[] = {
+    	int buttonMapOriginal[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
     			CPD_L, CPD_R, BTN_Z, BTN_R,
     			BTN_L, BTN_R, MODE, START
     	};
-
-    	int buttonMapRealAnalog[] = {
-    			DPD_U, DPD_D, DPD_L, DPD_R,
-    			CPD_D, BTN_A, CPD_U, BTN_B,
-    			CPD_L, CPD_R, BTN_Z, BTN_R,
-    			BTN_L, BTN_R, MODE, START
-    	};
-
-    	// TO DO verify digital
-    	int buttonMapRealDigital[] = {
+    	
+    	int buttonMapGoldenEye[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			CPD_D, BTN_A, CPD_U, BTN_B,
     			CPD_L, CPD_R, BTN_L, BTN_Z,
     			BTN_L, BTN_R, MODE, START
-    	};
-
-    	int buttonMappingModes[][] = {
-    		buttonMapRealNative, buttonMapRealAnalog, buttonMapRealDigital
     	};
     	
     	public boolean[][] buttons = new boolean[4][NUM_N64_BUTTONS];
@@ -554,12 +528,6 @@ public class GameActivity extends Activity
     	int analogX[] = new int[4];
     	int analogY[] = new int[4];
 
-    	public void setAnalogMode(GamepadEmulationMode gamepadEmulationMode) {
-    		for(int i=0; i<4; i++) {
-    			this.gamepadEmulationMode[i] = gamepadEmulationMode;
-    		}
-    	}
-    	
     	private long lastUpdate = 0;
     	
     	private int getDpadSignature(int player) {
@@ -580,22 +548,6 @@ public class GameActivity extends Activity
     		
 	    		int newX = (int)(ANALOG_MAX_X * x);
 	    		int newY = (int)(ANALOG_MAX_Y * y);
-	    		
-	    		if (gamepadEmulationMode[player] == GamepadEmulationMode.ANALOG) {
-	    		
-		    		int oldDpad = getDpadSignature(player); 
-		    		boolean dpad[] = buttons[player];
-		    		dpad[DPD_L] = hatx<0;
-		    		dpad[DPD_R] = hatx>0;
-		    		dpad[DPD_U] = haty<0;
-		    		dpad[DPD_D] = haty>0;
-		    		
-		    		int newDpad = getDpadSignature(player);
-		    		
-		    		if (newX == analogX[player] && newY == analogY[player] && oldDpad == newDpad) return;
-	    		} else {
-	    			if (newX == analogX[player] && newY == analogY[player]) return;
-	    		}
 
 	    		analogX[player] = newX;
 	    		analogY[player] = newY;
@@ -621,47 +573,26 @@ public class GameActivity extends Activity
     	
     	private void notifyChange(int player) {
     		// Log.d(LOGTAG, "Send change for player " + player + " " + buttons[player] + " x, y = " + analogX + ", " + analogY);
-    		switch (gamepadEmulationMode[player]) {
-    		case ANALOG:
-	    		boolean dpad[] = buttons[player];
-	    		int aX = dpad[DPD_L] ? -ANALOG_MAX_X : (dpad[DPD_R] ? ANALOG_MAX_X : analogX[player]);
-	    		int aY = dpad[DPD_D] ? -ANALOG_MAX_Y : (dpad[DPD_U] ? ANALOG_MAX_Y : analogY[player]);
-	            CoreInterfaceNative.setControllerState(player, buttons[player], aX, aY);
-	            break;
-    		case NATIVE:
-    		case DIGITAL:
-    			CoreInterfaceNative.setControllerState(player, buttons[player], analogX[player], analogY[player]);
-    			break;
-    		}
+    		CoreInterfaceNative.setControllerState(player, buttons[player], analogX[player], analogY[player]);
     	}
     	
 		@Override
 		public void sendKey(GenericGamepad gamepad, int keyCode, boolean down) {
 			int index = gamepad.getOriginIndex(keyCode);
-			int player = gamepad.player;
-			if (index == MODE) {
+			if (index == MODE && gamepad.getDeviceDescriptor()!=null) {
 				if (!down) {
-					int mode = gamepadEmulationMode[player].ordinal() + 1;
-					if (mode >= GamepadEmulationMode.values().length) {
+					int mode = controlType.ordinal() + 1;
+					if (mode >= ControlType.values().length) {
 						mode = 0;
 					}
-					gamepadEmulationMode[player] = GamepadEmulationMode.values()[mode];
 					
-					String modeNames[] = {
-							getString(R.string.emu_n64_control_native),
-							getString(R.string.emu_n64_control_analog),
-							getString(R.string.emu_n64_control_digital)
-					};
-					
-					String msg = modeNames[mode];
-					msg = msg.replace("{n}", String.valueOf(player+1));
-					
-					toastMessage(msg);
+					controlType = ControlType.values()[mode];
+					toastActiveControlType();
 				}
 				return;
 			}
 			if (index>=0) {
-				int map[] = buttonMappingModes[gamepadEmulationMode[player].ordinal()];
+				int map[] = controlType == ControlType.GoldenEye ? buttonMapGoldenEye: buttonMapOriginal;
 				int translatedIndex = gamepad.getDeviceDescriptor()==null?
 						buttonMapOverlay[index]:
 						map[index];
@@ -685,4 +616,16 @@ public class GameActivity extends Activity
 			}
 		}
     }
+
+	public void toastActiveControlType() {
+		String modeNames[] = {
+				getString(R.string.emu_n64_control_original),
+				getString(R.string.emu_n64_control_swapped),
+				getString(R.string.emu_n64_control_goldeneye)
+		};
+		
+		String msg = modeNames[controlType.ordinal()];
+		
+		toastMessage(msg);
+	}
 }
