@@ -111,6 +111,9 @@ public class GameActivity extends Activity
     	options.add(new ListOption("", getString(R.string.emu_opt_cancel)));
     	options.add(new ListOption("load", getString(R.string.emu_opt_state_load)));
     	options.add(new ListOption("save", getString(R.string.emu_opt_state_save)));
+    	if (Mapper.hasGamepads()) {
+    		options.add(new ListOption("controls", "Control Options")); // TODO TRANSLATE
+    	}
     	options.add(new ListOption("help", getString(R.string.emu_opt_help)));
     	options.add(new ListOption("quit", getString(R.string.emu_opt_quit)));
     	
@@ -129,6 +132,9 @@ public class GameActivity extends Activity
 					uiQuit();
 				} else if (key.equals("help")) {
 					uiHelp();
+					return;
+				} else if (key.equals("controls")) {
+					uiControlOptions();
 					return;
 				}
 				onResume();
@@ -178,6 +184,12 @@ public class GameActivity extends Activity
             Mapper.initGestureDetector(this);
             Mapper.joinPorts = MainActivity.publicIntent.getBooleanExtra("joinPorts", false);
             
+            String controls =  MainActivity.publicIntent.getStringExtra("controls");
+            if (controls!=null) {
+            	if (controls.equals("swapped")) controlType = ControlType.Swapped;
+            	else if (controls.equals("goldeneye")) controlType = ControlType.GoldenEye;
+            }
+            
             gamepadView = new GamepadView(this, overlay);
             
         	mSurfaceView = findViewById(R.id.gameSurface);
@@ -193,8 +205,16 @@ public class GameActivity extends Activity
     			
     			@Override
     			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty, float raxisx, float raxisy) {
-    				vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
-    				vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
+    				if (controlType == ControlType.Normal) {
+    					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
+    					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
+    				} else if (controlType == ControlType.Swapped) {
+    					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, raxisx, -raxisy, hatx, haty);
+    					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, axisx, axisy, 0, 0);
+    				} else if (controlType == ControlType.GoldenEye) {
+    					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, raxisx, -axisy, hatx, haty);
+    					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, axisx, raxisy, 0, 0);
+    				}
     			}
 
 				@Override
@@ -273,6 +293,8 @@ public class GameActivity extends Activity
 	
 	private int last_w = 0;
 	private int last_h = 0;
+	private enum ControlType {Normal, Swapped, GoldenEye};
+	private ControlType controlType = ControlType.Normal;
 	
 	private void setupGamepadOverlay(final ViewGroup root) {
 		ViewTreeObserver observer = root.getViewTreeObserver();
@@ -340,6 +362,34 @@ public class GameActivity extends Activity
     	CoreInterfaceNative.emuSaveFile(fileName);
     	String msg = getString(R.string.emu_slot_saved).replace("{n}", String.valueOf(saveSlot+1));
     	toastMessage(msg);
+    }
+    
+    protected void uiControlOptions() {
+    	List<ListOption> options = new ArrayList<ListOption>();
+    	options.add(new ListOption("normal", "Normal"));
+    	options.add(new ListOption("swapped", "Analog controls swapped"));
+    	options.add(new ListOption("goldeneye", "Optimized for Golden Eye"));
+    	
+    	RetroBoxDialog.showListDialog(this, "Control Options", options, new Callback<KeyValue>() {// TODO TRANSLATE
+
+			@Override
+			public void onResult(KeyValue result) {
+				String key = result.getKey();
+				if (key.equals("normal")) {
+					controlType = ControlType.Normal;
+					toastMessage("The analog controls has been restored"); // TODO TRANSLATE
+				}
+				if (key.equals("swapped")) {
+					controlType = ControlType.Swapped;
+					toastMessage("The analog controls have been swapped"); // TODO TRANSLATE
+				}
+				if (key.equals("goldeneye")) {
+					controlType = ControlType.GoldenEye;
+					toastMessage("The analog controls has optimized for Golden Eye"); // TODO TRANSLATE
+				}
+				onResume();
+			} 
+		});
     }
     
     protected void uiHelp() {
