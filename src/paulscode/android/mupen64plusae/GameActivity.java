@@ -225,6 +225,9 @@ public class GameActivity extends Activity
 					mapper.handleTriggerEvent(deviceDescriptor, deviceId, left, right); 
 				}
 
+				@Override
+				public void onTriggersAnalog(GenericGamepad gamepad, int deviceId, float left, float right) {}
+
     		});
         }
     }
