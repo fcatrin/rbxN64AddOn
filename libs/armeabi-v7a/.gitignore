@@ -1,0 +1,13 @@
+/libSDL2.so
+/libae-exports.so
+/libae-imports.so
+/libaudio-sdl.so
+/libcore.so
+/libfront-end.so
+/libgles2glide64.so
+/libgles2n64.so
+/libgles2rice.so
+/libinput-android.so
+/librsp-hle-nosound.so
+/librsp-hle.so
+/libxperia-touchpad.so

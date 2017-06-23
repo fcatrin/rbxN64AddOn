@@ -506,8 +506,8 @@ public class GameActivity extends Activity
     	int buttonMapOverlay[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			BTN_A, BTN_B, CPD_U, CPD_D,
-    			BTN_L, BTN_R, BTN_Z, BTN_Z,
-    			BTN_L, BTN_R, START, START
+    			BTN_L, BTN_R, CPD_L, CPD_R,
+    			BTN_Z, BTN_Z, MODE, START
     	};
 
     	int buttonMapOriginal[] = {
