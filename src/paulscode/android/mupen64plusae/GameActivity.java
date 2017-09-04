@@ -571,6 +571,12 @@ public class GameActivity extends Activity
     			int newCamera = getCameraSignature(player);
     			if (newCamera == oldCamera) return;
     		}
+    		
+    		buttons[player][DPD_U] = haty < 0;
+    		buttons[player][DPD_D] = haty > 0;
+    		buttons[player][DPD_L] = hatx < 0;
+    		buttons[player][DPD_R] = hatx > 0;
+    		
     		notifyChange(gamepad==null?0:gamepad.player);
     	};
     	
@@ -581,6 +587,7 @@ public class GameActivity extends Activity
     	
 		@Override
 		public void sendKey(GenericGamepad gamepad, int keyCode, boolean down) {
+			
 			int index = gamepad.getOriginIndex(keyCode);
 			if (index == MODE && gamepad.getDeviceDescriptor()!=null) {
 				if (!down) {
