@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="retrobox.v2.paulscode.android.mupen64plus.free"
     android:sharedUserId="psychoworld.retrobox.v2"
-    android:versionCode="36030"
-    android:versionName="2.4.4-30" >
+    android:versionCode="36031"
+    android:versionName="2.4.4-31" >
 
     <uses-feature android:glEsVersion="0x00020000" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
