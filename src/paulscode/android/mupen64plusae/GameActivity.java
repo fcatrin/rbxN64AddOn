@@ -22,9 +22,18 @@ package paulscode.android.mupen64plusae;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.Toast;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import retrobox.content.SaveStateInfo;
 import retrobox.utils.GamepadInfoDialog;
@@ -52,16 +61,6 @@ import xtvapps.core.AndroidFonts;
 import xtvapps.core.Callback;
 import xtvapps.core.SimpleCallback;
 import xtvapps.core.content.KeyValue;
-import android.app.Activity;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.Toast;
 
 public class GameActivity extends Activity
 {
@@ -79,6 +78,8 @@ public class GameActivity extends Activity
     
     private File stateFile = null;
     private int  saveSlot = 0;
+    
+    boolean is8bitdoN64[] = new boolean[4];
     
     AnalogGamepad analogGamepad;
     
@@ -171,6 +172,10 @@ public class GameActivity extends Activity
         if (MainActivity.fromRetroBox) {
         	setImmersiveMode();
         	
+        	for(int i=0; i<is8bitdoN64.length; i++) {
+        		is8bitdoN64[i] = MainActivity.publicIntent.getBooleanExtra("is8bitdoN64." + i, false);
+        	}
+        	
         	String saveStateDir = MainActivity.publicIntent.getStringExtra("saveStatePath"); 
         	stateFile = new File(saveStateDir, "save");
 
@@ -204,13 +209,19 @@ public class GameActivity extends Activity
     			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty, float raxisx, float raxisy) {
     				if (controlType == ControlType.Original) {
     					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
-    					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
     				} else if (controlType == ControlType.Swapped) {
     					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, raxisx, -raxisy, hatx, haty);
-    					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, axisx, axisy, 0, 0);
     				} else if (controlType == ControlType.GoldenEye) {
     					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, raxisx, -axisy, hatx, haty);
-    					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, axisx, raxisy, 0, 0);
+    				}
+    				if (gamepad!=null && !is8bitdoN64[gamepad.player]) {
+        				if (controlType == ControlType.Original) {
+        					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
+        				} else if (controlType == ControlType.Swapped) {
+        					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, axisx, axisy, 0, 0);
+        				} else if (controlType == ControlType.GoldenEye) {
+        					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, axisx, raxisy, 0, 0);
+        				}
     				}
     			}
 
@@ -222,7 +233,10 @@ public class GameActivity extends Activity
 				
 				@Override
 				public void onTriggers(String deviceDescriptor, int deviceId, boolean left, boolean right) {
-					mapper.handleTriggerEvent(deviceDescriptor, deviceId, left, right); 
+					GenericGamepad gamepad = mapper.resolveGamepad(deviceDescriptor, deviceId);
+					if (gamepad!=null && !is8bitdoN64[gamepad.player]) {
+						mapper.handleTriggerEvent(deviceDescriptor, deviceId, left, right);
+					}
 				}
 
 				@Override
