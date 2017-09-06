@@ -468,7 +468,7 @@ public class GameActivity extends Activity
 		
 		RetroBoxDialog.showSaveStatesDialog(this, title, adapter, callback);
 	}
-	
+
 	class VirtualInputDispatcher implements VirtualEventDispatcher {
 		
         /** N64 button: dpad-right. */
@@ -623,6 +623,7 @@ public class GameActivity extends Activity
 				buttons[gamepad.player][translatedIndex] = down;
 				notifyChange(gamepad.player);
 			}
+			
 		}
 
 		@Override
@@ -632,7 +633,13 @@ public class GameActivity extends Activity
 		public boolean handleShortcut(ShortCut shortcut, boolean down) {
 			switch(shortcut) {
 			case EXIT: if (!down) uiQuitConfirm(); return true;
-			case LOAD_STATE: if (!down) uiLoadState(); return true;
+			case LOAD_STATE: if (!down) {
+				if (is8bitdoN64[0])
+					openRetroBoxMenu(true);
+				else 
+					uiLoadState(); 
+				return true;
+			}
 			case SAVE_STATE: if (!down) uiSaveState(); return true;
 			case MENU : if (!down) openRetroBoxMenu(true); return true;
 			default:
