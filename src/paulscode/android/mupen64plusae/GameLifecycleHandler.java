@@ -222,7 +222,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         }
         
         // Initialize the screen elements
-        if(( mUserPrefs.isTouchscreenEnabled || mUserPrefs.isFpsEnabled ) && !MainActivity.fromRetroBox)
+        if((mUserPrefs.isTouchscreenEnabled && !MainActivity.fromRetroBox) || mUserPrefs.isFpsEnabled)
         {
             // The touch map and overlay are needed to display frame rate and/or controls
             mTouchscreenMap = new VisibleTouchMap( mActivity.getResources(),

@@ -124,7 +124,9 @@ public class MainActivity extends Activity implements OnExtractionProgressListen
             
             editor.putString("videoScaling", keepAspect?"zoom":"stretch" );
             
-           
+            editor.putString("videoFpsRefresh", String.valueOf(getIntent().getIntExtra("showFPS", 0)));
+            editor.putBoolean("touchscreenEnabled", false);
+            
             publicIntent = getIntent();
             
             for(int i=0; i<4; i++) {
