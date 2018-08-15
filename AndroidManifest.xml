@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="retrobox.v2.paulscode.android.mupen64plus.free"
-    android:sharedUserId="psychoworld.retrobox.v2"
+    package="xtvapps.prg.paulscode.android.mupen64plus.free"
+    android:sharedUserId="xtvapps.prg.user"
     android:versionCode="36032"
     android:versionName="2.4.4-32" >
 
@@ -20,7 +20,7 @@
         android:name="paulscode.android.mupen64plusae.AppMupen64Plus"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/retrobox"
+        android:icon="@drawable/ic_prg"
         android:label="@string/app_name"
         android:launchMode="singleTask"
         android:theme="@style/appTheme" >
@@ -54,7 +54,7 @@
             </intent-filter>
              -->
             <intent-filter>
-                <action android:name="retrobox.v2.n64" />
+                <action android:name="xtvapps.prg.n64" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain"/>
             </intent-filter>

@@ -36,7 +36,7 @@ import paulscode.android.mupen64plusae.input.provider.NativeInputSource;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import paulscode.android.mupen64plusae.util.Demultiplexer;
-import retrobox.v2.paulscode.android.mupen64plus.free.R;
+import xtvapps.prg.paulscode.android.mupen64plus.free.R;
 import retrobox.utils.RetroBoxDialog;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
