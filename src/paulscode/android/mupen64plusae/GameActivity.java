@@ -42,7 +42,7 @@ import retrobox.utils.ListOption;
 import retrobox.utils.RetroBoxDialog;
 import retrobox.utils.RetroBoxUtils;
 import retrobox.utils.SaveStateSelectorAdapter;
-import xtvapps.prg.paulscode.android.mupen64plus.free.R;
+import xtvapps.res.paulscode.android.mupen64plus.free.R;
 import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;

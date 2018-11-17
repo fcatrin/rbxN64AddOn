@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import xtvapps.prg.paulscode.android.mupen64plus.free.R;
+import xtvapps.res.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.util.FileUtil;
 import paulscode.android.mupen64plusae.util.Prompt;
 import android.app.AlertDialog.Builder;
