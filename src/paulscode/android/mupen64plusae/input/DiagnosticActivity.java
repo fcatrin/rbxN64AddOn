@@ -22,7 +22,7 @@ package paulscode.android.mupen64plusae.input;
 
 import java.util.Locale;
 
-import xtvapps.res.paulscode.android.mupen64plus.free.R;
+import xtvapps.prg.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.input.provider.AbstractProvider;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;

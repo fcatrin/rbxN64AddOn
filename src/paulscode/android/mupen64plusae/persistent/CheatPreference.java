@@ -20,7 +20,7 @@
  */
 package paulscode.android.mupen64plusae.persistent;
 
-import xtvapps.res.paulscode.android.mupen64plus.free.R;
+import xtvapps.prg.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.persistent.OptionDialog.Listener;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

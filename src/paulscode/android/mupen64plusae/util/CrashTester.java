@@ -22,7 +22,7 @@ package paulscode.android.mupen64plusae.util;
 
 import org.acra.ACRA;
 
-import xtvapps.res.paulscode.android.mupen64plus.free.R;
+import xtvapps.prg.paulscode.android.mupen64plus.free.R;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.preference.Preference;

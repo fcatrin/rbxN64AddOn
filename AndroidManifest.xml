@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="xtvapps.res.paulscode.android.mupen64plus.free"
-    android:sharedUserId="xtvapps.res.user"
+    package="xtvapps.prg.paulscode.android.mupen64plus.free"
+    android:sharedUserId="xtvapps.prg.user"
     android:versionCode="36032"
     android:versionName="2.4.4-32" >
 
@@ -54,7 +54,7 @@
             </intent-filter>
              -->
             <intent-filter>
-                <action android:name="xtvapps.res.n64" />
+                <action android:name="xtvapps.prg.n64" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain"/>
             </intent-filter>

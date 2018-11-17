@@ -2,8 +2,8 @@
 <resources>
 
     <!-- Proper names, trademarks, etc. -->
-    <string name="app_name" translatable="false">RES N64 Add-on</string>
-    <string name="emu_opt_title">RES Options</string>
+    <string name="app_name" translatable="false">PRG N64 Add-on</string>
+    <string name="emu_opt_title">PRG Options</string>
    
     <!-- Web links, email addresses, etc. -->
     <string name="actionHelp_uriFaq" translatable="false">http://www.paulscode.com/forum/index.php?topic=197.msg3018#msg3018</string>
