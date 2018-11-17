@@ -27,7 +27,7 @@ import java.util.List;
 
 import com.bda.controller.Controller;
 
-import xtvapps.prg.paulscode.android.mupen64plus.free.R;
+import xtvapps.res.paulscode.android.mupen64plus.free.R;
 import paulscode.android.mupen64plusae.input.map.InputMap;
 import paulscode.android.mupen64plusae.input.provider.AbstractProvider;
 import paulscode.android.mupen64plusae.input.provider.AbstractProvider.OnInputListener;
