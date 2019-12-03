@@ -522,14 +522,14 @@ public class GameActivity extends Activity
 
     	int buttonMapOriginal[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
-    			CPD_D, BTN_A, CPD_U, BTN_B,
+    			BTN_A, BTN_B, CPD_D, CPD_U,
     			CPD_L, CPD_R, BTN_Z, BTN_R,
     			BTN_L, BTN_R, MODE, START
     	};
     	
     	int buttonMapGoldenEye[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
-    			CPD_D, BTN_A, CPD_U, BTN_B,
+    			BTN_A, BTN_B, CPD_D, CPD_U,
     			CPD_L, CPD_R, BTN_L, BTN_Z,
     			BTN_L, BTN_R, MODE, START
     	};
