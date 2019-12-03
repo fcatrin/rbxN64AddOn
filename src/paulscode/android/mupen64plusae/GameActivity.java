@@ -46,17 +46,17 @@ import retrobox.v2.paulscode.android.mupen64plus.free.R;
 import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
-import retrobox.vinput.GenericGamepad;
-import retrobox.vinput.GenericGamepad.Analog;
+import retrobox.vinput.GamepadDevice;
+import retrobox.vinput.GamepadMapping.Analog;
 import retrobox.vinput.Mapper;
 import retrobox.vinput.Mapper.ShortCut;
 import retrobox.vinput.QuitHandler;
 import retrobox.vinput.QuitHandler.QuitHandlerCallback;
 import retrobox.vinput.VirtualEvent.MouseButton;
 import retrobox.vinput.VirtualEventDispatcher;
-import retrobox.vinput.overlay.GamepadController;
-import retrobox.vinput.overlay.GamepadView;
 import retrobox.vinput.overlay.Overlay;
+import retrobox.vinput.overlay.OverlayGamepadController;
+import retrobox.vinput.overlay.OverlayGamepadView;
 import xtvapps.core.AndroidFonts;
 import xtvapps.core.Callback;
 import xtvapps.core.SimpleCallback;
@@ -72,8 +72,8 @@ public class GameActivity extends Activity
     public static final Overlay overlay = new Overlay();
 	public static Mapper mapper;
 	private VirtualInputDispatcher vinputDispatcher;
-    private GamepadView gamepadView;
-    private GamepadController gamepadController;
+    private OverlayGamepadView overlayGamepadView;
+    private OverlayGamepadController overlayGamepadController;
     private View mSurfaceView;
     
     private File stateFile = null;
@@ -179,12 +179,11 @@ public class GameActivity extends Activity
         	String saveStateDir = MainActivity.publicIntent.getStringExtra("saveStatePath"); 
         	stateFile = new File(saveStateDir, "save");
 
-        	gamepadController = new GamepadController();
+        	overlayGamepadController = new OverlayGamepadController();
         	vinputDispatcher = new VirtualInputDispatcher();
         	
             mapper = new Mapper(MainActivity.publicIntent, vinputDispatcher);
             Mapper.initGestureDetector(this);
-            Mapper.joinPorts = MainActivity.publicIntent.getBooleanExtra("joinPorts", false);
             
             String controls =  MainActivity.publicIntent.getStringExtra("controls");
             if (controls!=null) {
@@ -192,7 +191,7 @@ public class GameActivity extends Activity
             	else if (controls.equals("goldeneye")) controlType = ControlType.GoldenEye;
             }
             
-            gamepadView = new GamepadView(this, overlay);
+            overlayGamepadView = new OverlayGamepadView(this, overlay);
             
         	mSurfaceView = findViewById(R.id.gameSurface);
             ViewGroup root = (ViewGroup)findViewById(R.id.root);
@@ -206,7 +205,7 @@ public class GameActivity extends Activity
     			public void onMouseMove(int mousex, int mousey) {}
     			
     			@Override
-    			public void onAxisChange(GenericGamepad gamepad, float axisx, float axisy, float hatx, float haty, float raxisx, float raxisy) {
+    			public void onAxisChange(GamepadDevice gamepad, float axisx, float axisy, float hatx, float haty, float raxisx, float raxisy) {
     				if (controlType == ControlType.Original) {
     					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, axisx, -axisy, hatx, haty);
     				} else if (controlType == ControlType.Swapped) {
@@ -226,21 +225,18 @@ public class GameActivity extends Activity
     			}
 
 				@Override
-				public void onDigitalX(GenericGamepad gamepad, Axis axis, boolean on) {}
+				public void onDigitalX(GamepadDevice gamepad, Axis axis, boolean on) {}
 
 				@Override
-				public void onDigitalY(GenericGamepad gamepad, Axis axis, boolean on) {}
+				public void onDigitalY(GamepadDevice gamepad, Axis axis, boolean on) {}
 				
 				@Override
-				public void onTriggers(String deviceDescriptor, int deviceId, boolean left, boolean right) {
-					GenericGamepad gamepad = mapper.resolveGamepad(deviceDescriptor, deviceId);
-					if (gamepad!=null && !is8bitdoN64[gamepad.player]) {
-						mapper.handleTriggerEvent(deviceDescriptor, deviceId, left, right);
-					}
+				public void onTriggers(String deviceName, int deviceId, boolean left, boolean right) {
+					mapper.handleTriggerEventByDeviceName(deviceName, deviceId, left, right);
 				}
 
 				@Override
-				public void onTriggersAnalog(GenericGamepad gamepad, int deviceId, float left, float right) {}
+				public void onTriggersAnalog(GamepadDevice gamepad, int deviceId, float left, float right) {}
 
     		});
         }
@@ -292,10 +288,10 @@ public class GameActivity extends Activity
 			return super.dispatchTouchEvent(ev);
 		}
 		
-		if (gamepadView.isVisible() && gamepadController.onTouchEvent(ev)) {
+		if (overlayGamepadView.isVisible() && overlayGamepadController.onTouchEvent(ev)) {
 			if (Overlay.requiresRedraw) {
 				Overlay.requiresRedraw = false;
-				gamepadView.invalidate();
+				overlayGamepadView.invalidate();
 			}
 			return true;
 		}
@@ -334,8 +330,8 @@ public class GameActivity extends Activity
 		Log.d("OVERLAY", "setupGamepadOverlay");
 		if (needsOverlay()) {
 			Log.d("OVERLAY", "has Overlay");
-			gamepadView.addToLayout(root);
-			gamepadView.showPanel();
+			overlayGamepadView.addToLayout(root);
+			overlayGamepadView.showPanel();
 		}
 	}
 	
@@ -405,7 +401,7 @@ public class GameActivity extends Activity
     }
     
     protected void uiHelp() {
-		RetroBoxDialog.showGamepadDialogIngame(this, gamepadInfoDialog, new SimpleCallback() {
+		RetroBoxDialog.showGamepadDialogIngame(this, gamepadInfoDialog, Mapper.hasGamepads(), new SimpleCallback() {
 			@Override
 			public void onResult() {
 				onResume();
@@ -558,7 +554,7 @@ public class GameActivity extends Activity
     	}
 
     	@Override
-    	public void sendAnalog(GenericGamepad gamepad, GenericGamepad.Analog index, double x, double y, double hatx, double haty) {
+    	public void sendAnalog(GamepadDevice gamepad, Analog index, double x, double y, double hatx, double haty) {
     		int player = gamepad.player;
     		
     		if (index == Analog.LEFT) {
@@ -572,7 +568,7 @@ public class GameActivity extends Activity
 	    		long t = System.currentTimeMillis();
 	    		if (t-lastUpdate>64 || (newX == 0 && newY == 0)) {
 	    			lastUpdate = t;
-		    		gamepadView.postInvalidate();
+		    		overlayGamepadView.postInvalidate();
 	    		}
     		} else if (index == Analog.RIGHT) {
     			double threshold = 0.2;
@@ -600,10 +596,10 @@ public class GameActivity extends Activity
     	}
     	
 		@Override
-		public void sendKey(GenericGamepad gamepad, int keyCode, boolean down) {
+		public void sendKey(GamepadDevice gamepad, int keyCode, boolean down) {
 			
-			int index = gamepad.getOriginIndex(keyCode);
-			if (index == MODE && gamepad.getDeviceDescriptor()!=null) {
+			int index = gamepad.getGamepadMapping().getOriginIndex(keyCode);
+			if (index == MODE) {
 				if (!down) {
 					int mode = controlType.ordinal() + 1;
 					if (mode >= ControlType.values().length) {
@@ -617,9 +613,12 @@ public class GameActivity extends Activity
 			}
 			if (index>=0) {
 				int map[] = controlType == ControlType.GoldenEye ? buttonMapGoldenEye: buttonMapOriginal;
+				/*
 				int translatedIndex = gamepad.getDeviceDescriptor()==null?
 						buttonMapOverlay[index]:
 						map[index];
+				*/
+				int translatedIndex = map[index];
 				buttons[gamepad.player][translatedIndex] = down;
 				notifyChange(gamepad.player);
 			}
