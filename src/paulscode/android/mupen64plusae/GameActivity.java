@@ -81,8 +81,6 @@ public class GameActivity extends Activity
     private File stateFile = null;
     private int  saveSlot = 0;
     
-    boolean is8bitdoN64[] = new boolean[4];
-    
     AnalogGamepad analogGamepad;
     
 	private GamepadInfoDialog gamepadInfoDialog;
@@ -174,10 +172,6 @@ public class GameActivity extends Activity
         if (MainActivity.fromRetroBox) {
         	setImmersiveMode();
         	
-        	for(int i=0; i<is8bitdoN64.length; i++) {
-        		is8bitdoN64[i] = MainActivity.publicIntent.getBooleanExtra("is8bitdoN64." + i, false);
-        	}
-        	
         	String saveStateDir = MainActivity.publicIntent.getStringExtra("saveStatePath"); 
         	stateFile = new File(saveStateDir, "save");
 
@@ -215,7 +209,7 @@ public class GameActivity extends Activity
     				} else if (controlType == ControlType.GoldenEye) {
     					vinputDispatcher.sendAnalog(gamepad, Analog.LEFT, raxisx, -axisy, hatx, haty);
     				}
-    				if (gamepad!=null && !is8bitdoN64[gamepad.player]) {
+    				if (gamepad!=null) {
         				if (controlType == ControlType.Original) {
         					vinputDispatcher.sendAnalog(gamepad, Analog.RIGHT, raxisx, raxisy, 0, 0);
         				} else if (controlType == ControlType.Swapped) {
@@ -518,7 +512,7 @@ public class GameActivity extends Activity
     	int buttonMapOverlay[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
     			BTN_B, BTN_A, CPD_D, CPD_U,
-    			BTN_L, BTN_R, CPD_R, CPD_L,
+    			BTN_L, BTN_R, CPD_L, CPD_R,
     			BTN_Z, BTN_Z, MODE, START
     	};
 
@@ -534,6 +528,13 @@ public class GameActivity extends Activity
     			BTN_A, BTN_B, CPD_D, CPD_U,
     			CPD_L, CPD_R, BTN_L, BTN_Z,
     			BTN_L, BTN_R, MODE, START
+    	};
+    	
+    	int buttonMap8bitdo[] = {
+    			DPD_U, DPD_D, DPD_L, DPD_R,
+    			BTN_A, BTN_B, CPD_D, CPD_L, 
+    			BTN_L, BTN_R, CPD_U, CPD_R, 
+    			-1, -1, BTN_Z, START
     	};
     	
     	public boolean[][] buttons = new boolean[4][NUM_N64_BUTTONS];
@@ -601,7 +602,11 @@ public class GameActivity extends Activity
 		public void sendKey(GamepadDevice gamepad, int keyCode, boolean down) {
 
 			int index = GamepadMapping.getOriginIndex(keyCode);
-			if (index == MODE) {
+			int map[] = controlType == ControlType.GoldenEye ? buttonMapGoldenEye: buttonMapOriginal;
+			int translatedCode = gamepad.isOverlay?	buttonMapOverlay[index] :
+					(gamepad.is8bitdoAuto ? buttonMap8bitdo[index] : map[index]);
+			
+			if (translatedCode == MODE) {
 				if (!down) {
 					int mode = controlType.ordinal() + 1;
 					if (mode >= ControlType.values().length) {
@@ -611,16 +616,10 @@ public class GameActivity extends Activity
 					controlType = ControlType.values()[mode];
 					toastActiveControlType();
 				}
-				return;
 			} else {
-				int map[] = controlType == ControlType.GoldenEye ? buttonMapGoldenEye: buttonMapOriginal;
-				int translatedIndex = gamepad.isOverlay?
-						buttonMapOverlay[index]:
-						map[index];
-				buttons[gamepad.player][translatedIndex] = down;
+				buttons[gamepad.player][translatedCode] = down;
 				notifyChange(gamepad.player);
 			}
-			
 		}
 
 		@Override
@@ -630,13 +629,7 @@ public class GameActivity extends Activity
 		public boolean handleShortcut(ShortCut shortcut, boolean down) {
 			switch(shortcut) {
 			case EXIT: if (!down) uiQuitConfirm(); return true;
-			case LOAD_STATE: if (!down) {
-				if (is8bitdoN64[0])
-					openRetroBoxMenu(true);
-				else 
-					uiLoadState(); 
-				return true;
-			}
+			case LOAD_STATE: if (!down) uiLoadState(); return true;
 			case SAVE_STATE: if (!down) uiSaveState(); return true;
 			case MENU : if (!down) openRetroBoxMenu(true); return true;
 			default:
