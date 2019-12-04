@@ -28,6 +28,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ import retrobox.vinput.AnalogGamepad;
 import retrobox.vinput.AnalogGamepad.Axis;
 import retrobox.vinput.AnalogGamepadListener;
 import retrobox.vinput.GamepadDevice;
+import retrobox.vinput.GamepadMapping;
 import retrobox.vinput.GamepadMapping.Analog;
 import retrobox.vinput.Mapper;
 import retrobox.vinput.Mapper.ShortCut;
@@ -515,8 +517,8 @@ public class GameActivity extends Activity
     	
     	int buttonMapOverlay[] = {
     			DPD_U, DPD_D, DPD_L, DPD_R,
-    			BTN_A, BTN_B, CPD_U, CPD_D,
-    			BTN_L, BTN_R, CPD_L, CPD_R,
+    			BTN_B, BTN_A, CPD_D, CPD_U,
+    			BTN_L, BTN_R, CPD_R, CPD_L,
     			BTN_Z, BTN_Z, MODE, START
     	};
 
@@ -597,8 +599,8 @@ public class GameActivity extends Activity
     	
 		@Override
 		public void sendKey(GamepadDevice gamepad, int keyCode, boolean down) {
-			
-			int index = gamepad.getGamepadMapping().getOriginIndex(keyCode);
+
+			int index = GamepadMapping.getOriginIndex(keyCode);
 			if (index == MODE) {
 				if (!down) {
 					int mode = controlType.ordinal() + 1;
@@ -610,15 +612,11 @@ public class GameActivity extends Activity
 					toastActiveControlType();
 				}
 				return;
-			}
-			if (index>=0) {
+			} else {
 				int map[] = controlType == ControlType.GoldenEye ? buttonMapGoldenEye: buttonMapOriginal;
-				/*
-				int translatedIndex = gamepad.getDeviceDescriptor()==null?
+				int translatedIndex = gamepad.isOverlay?
 						buttonMapOverlay[index]:
 						map[index];
-				*/
-				int translatedIndex = map[index];
 				buttons[gamepad.player][translatedIndex] = down;
 				notifyChange(gamepad.player);
 			}
