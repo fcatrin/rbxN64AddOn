@@ -291,7 +291,7 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         			return RetroBoxDialog.onKeyUp(mActivity, keyCode, event);
         		}
         	}
-        	if (GameActivity.mapper.handleKeyEvent(event, keyCode, keyDown)) return true;
+        	if (GameActivity.mapper.handleKeyEvent(this, event, keyCode, keyDown)) return true;
         }
         
         // For devices with an action bar, absorb all back key presses
