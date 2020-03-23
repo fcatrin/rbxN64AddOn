@@ -332,7 +332,7 @@ public class GameActivity extends Activity
 	}
 	
 	private boolean needsOverlay() {
-		return !Mapper.hasGamepads();
+		return Mapper.mustDisplayOverlayControllers();
 	}
 
     @Override
