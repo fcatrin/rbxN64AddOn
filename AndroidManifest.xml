@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="xtvapps.prg.paulscode.android.mupen64plus.free"
     android:sharedUserId="xtvapps.prg.user"
-    android:versionCode="36033"
-    android:versionName="2.4.4-33" >
+    android:versionCode="36034"
+    android:versionName="2.4.4-34" >
 
     <uses-feature android:glEsVersion="0x00020000" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
